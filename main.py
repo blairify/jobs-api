@@ -136,7 +136,7 @@ class JobDatabase:
                 str(row.get('job_function', '')),
                 str(row.get('listing_type', '')),
                 str(row.get('emails', '')),
-                str(row.get('description', '')),
+                str(row.get('description', '')).replace('nan', '').strip() if pd.notna(row.get('description')) else '',
                 str(row.get('company_industry', '')),
                 str(row.get('company_url', '')),
                 str(row.get('company_logo', '')),
@@ -164,9 +164,9 @@ class JobDatabase:
             if self.job_exists(job_id):
                 continue
                 
-            # Skip if description is empty, None, or whitespace
-            if not description or (isinstance(description, str) and not description.strip()):
-                logger.info(f"Skipping job {job_id} - no description provided")
+            # Skip if description is empty, None, whitespace, or 'nan' (as string)
+            if not description or (isinstance(description, str) and (not description.strip() or description.strip().lower() == 'nan')):
+                logger.info(f"Skipping job {job_id} - no valid description provided")
                 continue
                 
             new_jobs.append(job)

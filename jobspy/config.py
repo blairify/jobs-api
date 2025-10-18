@@ -14,7 +14,7 @@ SOFTWARE_ENGINEERING_CONFIGS = [
         "site_name": ["linkedin", "indeed"],
         "search_term": "software engineer",
         "location": "San Francisco, CA",
-        "results_wanted": 150,
+        "results_wanted": 50,
         "hours_old": 72,
         "delay": 3
     },
@@ -23,7 +23,7 @@ SOFTWARE_ENGINEERING_CONFIGS = [
         "site_name": ["linkedin", "indeed"],
         "search_term": "software engineer",
         "location": "New York, NY",
-        "results_wanted": 150,
+        "results_wanted": 50,
         "hours_old": 72,
         "delay": 3
     },
@@ -32,7 +32,7 @@ SOFTWARE_ENGINEERING_CONFIGS = [
         "site_name": ["linkedin", "indeed"],
         "search_term": "software engineer",
         "location": "Austin, TX",
-        "results_wanted": 100,
+        "results_wanted": 50,
         "hours_old": 72,
         "delay": 3
     },
@@ -41,7 +41,7 @@ SOFTWARE_ENGINEERING_CONFIGS = [
         "site_name": ["linkedin", "indeed"],
         "search_term": "software engineer",
         "location": "Seattle, WA",
-        "results_wanted": 100,
+        "results_wanted": 50,
         "hours_old": 72,
         "delay": 3
     },
@@ -50,7 +50,7 @@ SOFTWARE_ENGINEERING_CONFIGS = [
         "site_name": ["linkedin", "indeed"],
         "search_term": "junior software engineer",
         "location": "United States",
-        "results_wanted": 100,
+        "results_wanted": 50,
         "hours_old": 72,
         "delay": 3
     },
@@ -71,7 +71,7 @@ DATA_SCIENCE_CONFIGS = [
         "site_name": ["linkedin", "indeed"],
         "search_term": "python developer",
         "location": "Remote",
-        "results_wanted": 150,
+        "results_wanted": 50,
         "hours_old": 72,
         "delay": 3
     },
@@ -80,7 +80,7 @@ DATA_SCIENCE_CONFIGS = [
         "site_name": ["linkedin", "indeed"],
         "search_term": "data engineer",
         "location": "United States",
-        "results_wanted": 150,
+        "results_wanted": 50,
         "hours_old": 72,
         "delay": 3
     },
@@ -89,7 +89,7 @@ DATA_SCIENCE_CONFIGS = [
         "site_name": ["linkedin", "indeed"],
         "search_term": "data scientist",
         "location": "United States",
-        "results_wanted": 150,
+        "results_wanted": 50,
         "hours_old": 72,
         "delay": 3
     },
@@ -98,7 +98,7 @@ DATA_SCIENCE_CONFIGS = [
         "site_name": ["linkedin", "indeed"],
         "search_term": "machine learning engineer",
         "location": "United States",
-        "results_wanted": 100,
+        "results_wanted": 50,
         "hours_old": 72,
         "delay": 3
     }
@@ -110,7 +110,7 @@ WEB_DEVELOPMENT_CONFIGS = [
         "site_name": ["linkedin", "indeed"],
         "search_term": "frontend developer",
         "location": "United States",
-        "results_wanted": 100,
+        "results_wanted": 50,
         "hours_old": 72,
         "delay": 3
     },
@@ -119,7 +119,7 @@ WEB_DEVELOPMENT_CONFIGS = [
         "site_name": ["linkedin", "indeed"],
         "search_term": "backend developer",
         "location": "United States",
-        "results_wanted": 100,
+        "results_wanted": 50,
         "hours_old": 72,
         "delay": 3
     },
@@ -128,7 +128,7 @@ WEB_DEVELOPMENT_CONFIGS = [
         "site_name": ["linkedin", "indeed"],
         "search_term": "full stack developer",
         "location": "United States",
-        "results_wanted": 100,
+        "results_wanted": 50,
         "hours_old": 72,
         "delay": 3
     }
@@ -140,7 +140,7 @@ DEVOPS_CLOUD_CONFIGS = [
         "site_name": ["linkedin", "indeed"],
         "search_term": "devops engineer",
         "location": "United States",
-        "results_wanted": 100,
+        "results_wanted": 50,
         "hours_old": 72,
         "delay": 3
     },
@@ -149,7 +149,7 @@ DEVOPS_CLOUD_CONFIGS = [
         "site_name": ["linkedin", "indeed"],
         "search_term": "cloud engineer",
         "location": "United States",
-        "results_wanted": 100,
+        "results_wanted": 50,
         "hours_old": 72,
         "delay": 3
     },
