@@ -1,0 +1,248 @@
+"id","site","job_url","job_url_direct","title","company","location","date_posted","job_type","salary_source","interval","min_amount","max_amount","currency","is_remote","job_level","job_function","listing_type","emails","description","company_industry","company_url","company_logo","company_url_direct","company_addresses","company_num_employees","company_revenue","company_description","skills","experience_range","company_rating","company_reviews_count","vacancy_count","work_from_home_type"
+"in-1c8bca76aaf5c5a8","indeed","https://www.indeed.com/viewjob?jk=1c8bca76aaf5c5a8","https://careers.rivian.com/jobs/26857/job?utm_source=indeed_integration&iis=Job%20Board&iisn=Indeed&indeed-apply-token=73a2d2b2a8d6d5c0a62696875eaebd669103652d3f0c2cd5445d3e66b1592b0f","Staff Software Engineer, ML Acceleration and Performance","Rivian","Palo Alto, CA, US","2025-10-17","fulltime","direct_data","yearly",179000.0,285000.0,"USD",False,"","","","candidateaccommodations@rivian.com","About Us:
+
+Rivian is on a mission to keep the world adventurous forever. This goes for the emissions-free Electric Adventure Vehicles we build, and the curious, courageous souls we seek to attract.
+
+As a company, we constantly challenge what’s possible, never simply accepting what has always been done. We reframe old problems, seek new solutions and operate comfortably in areas that are unknown. Our backgrounds are diverse, but our team shares a love of the outdoors and a desire to protect it for future generations.
+
+Role Summary:
+
+As a Staff Software Engineer, ML Acceleration and Performance, you will be a member of the Perception team at Rivian, which develops advanced machine learning algorithms that directly impact safety critical self-driving features of our category defining vehicles.
+
+Responsibilities:
+
+* Develop, optimize and deploy ultra-low latency Deep learning/Machine Learning algorithms for Rivian ADAS and Autonomy use cases.
+* Research state of the art model compression and efficient model design techniques and enable the team to leverage these across a wide range of customer facing features.
+* Collaborate with the low-level software and hardware architecture teams to characterize the in-house ML models on our embedded platforms and optimize the models subject to the on device compute and memory constraints.
+
+Qualifications:
+
+* MS. or Ph.D. in Computer Science, Electrical, Mechanical, Aerospace Engineering or a related field.
+* Good understanding of the fundamentals of deep learning, heterogenous computing, ML accelerators and compilers with 7+ years of industrial experience.
+* Good team player with great communication skills to drive cross functional efforts in a fast-paced development environment.
+* Research and development experience in one or more of the following areas:
+  + model compression and neural architecture search techniques knowledge distillation, pruning, quantization and quantization aware training optimizing and deploying inference on various embedded processors
+  + optimizing and deploying inference on various embedded processors
+* Experience defining compute architecture for efficient Deep learning inferencing.
+* Capability to understand hardware spec documents and performance profiling tools.
+* Strong Python programming background and in-depth knowledge of at least one framework amongst PyTorch, TensorFlow or MXNet
+* Experience implementing inference logic from first principles using low level subroutines like BLAS, CUDA Kernels or C++ natively.
+* Familiarity with ONNX runtimes and DL compilers like XLA or Glow.
+
+Pay Disclosure:
+
+Salary Range for California Based Applicants: $179,000.00 - $285,000.00 (actual compensation will be determined based on experience, location, and other factors permitted by law).
+
+**Benefits Summary**: Rivian provides robust medical/Rx, dental and vision insurance packages for full-time employees, their spouse or domestic partner, and children up to age 26. Coverage is effective on the first day of employment
+
+Company Statements:
+
+#### **Equal Opportunity**
+
+Rivian is an equal opportunity employer and complies with all applicable federal, state, and local fair employment practices laws. All qualified applicants will receive consideration for employment without regard to race, color, religion, national origin, ancestry, sex, sexual orientation, gender, gender expression, gender identity, genetic information or characteristics, physical or mental disability, marital/domestic partner status, age, military/veteran status, medical condition, or any other characteristic protected by law.
+
+Rivian is committed to ensuring that our hiring process is accessible for persons with disabilities. If you have a disability or limitation, such as those covered by the Americans with Disabilities Act, that requires accommodations to assist you in the search and application process, please email us at candidateaccommodations@rivian.com.
+
+#### **Candidate Data Privacy**
+
+Rivian may collect, use and disclose your personal information or personal data (within the meaning of the applicable data protection laws) when you apply for employment and/or participate in our recruitment processes (“Candidate Personal Data”). This data includes contact, demographic, communications, educational, professional, employment, social media/website, network/device, recruiting system usage/interaction, security and preference information. Rivian may use your Candidate Personal Data for the purposes of (i) tracking interactions with our recruiting system; (ii) carrying out, analyzing and improving our application and recruitment process, including assessing you and your application and conducting employment, background and reference checks; (iii) establishing an employment relationship or entering into an employment contract with you; (iv) complying with our legal, regulatory and corporate governance obligations; (v) recordkeeping; (vi) ensuring network and information security and preventing fraud; and (vii) as otherwise required or permitted by applicable law.
+
+Rivian may share your Candidate Personal Data with (i) internal personnel who have a need to know such information in order to perform their duties, including individuals on our People Team, Finance, Legal, and the team(s) with the position(s) for which you are applying; (ii) Rivian affiliates; and (iii) Rivian’s service providers, including providers of background checks, staffing services, and cloud services.
+
+Rivian may transfer or store internationally your Candidate Personal Data, including to or in the United States, Canada, the United Kingdom, and the European Union and in the cloud, and this data may be subject to the laws and accessible to the courts, law enforcement and national security authorities of such jurisdictions.
+
+**Please note that we are currently not accepting applications from third party application services.**","","https://www.indeed.com/cmp/Rivian-3","https://d2q79iu7y748jz.cloudfront.net/s/_squarelogo/256x256/14c0120b4004bec06139ec888b8f5cd6","https://careers.rivian.com/careers-home/","Irvine, CA","10,000+","Decline to state","Rivian is developing and manufacturing vehicles and technology to inspire people to explore the world.","","","","","",""
+"in-8ab82697c872d4fa","indeed","https://www.indeed.com/viewjob?jk=8ab82697c872d4fa","https://careers-jobyaviation.icims.com/jobs/4324/job?utm_source=indeed_integration&iis=Job%20Board&iisn=Indeed&indeed-apply-token=73a2d2b2a8d6d5c0a62696875eaebd669103652d3f0c2cd5445d3e66b1592b0f","Senior Software Engineer","Joby Aviation","San Carlos, CA, US","2025-10-17","fulltime","direct_data","yearly",132200.0,197900.0,"USD",False,"","","","","Joby Overview: Imagine a piloted air taxi that takes off vertically, then quietly carries you and your fellow passengers over the congested city streets below, enabling you to spend more time with the people and places that matter most. Since 2009, our team has worked steadily to make this dream a reality. We’ve designed and tested many generations of prototype aircraft capable of serving in a network of electric air taxis. We’re looking for talented, committed individuals to join our team as we push onward toward certifying the Joby aircraft, scaling our manufacturing, and launching our initial commercial service. Overview:
+
+We're looking for a highly motivated Mobile/Fullstack Senior Software Engineer to join our Air Taxi Systems team. We're seeking someone who has a demonstrated ability to ship iOS apps to both consumers and internal users. It is important that this person has worked on related backend APIs to power these apps. We're working on making quiet, emissions-free flight an everyday reality. As an engineer you'll work closely with product managers, designers, flight operations, and other engineers to maintain and stand up apps for our existing suite of tools in our EFB (electronic flight bag) for pilots, internal apps for our day to day operations on site, and consumer facing apps for riders. At this time working on the air taxi systems team is still similar to working in a start-up environment as we’re developing all the systems for commercial launch. We're looking for someone who is passionate about aviation, technology, and having a positive impact on the world.
+
+Responsibilities:  
+
+* Develop consumer-grade mobile apps according to product requirements and design
+* Iterate with product managers and designers
+* Collaborate on and implement APIs and backend functions when possible
+* Conduct thorough engineering testing and collaborate closely with QA
+* Deployment and maintenance of public and company-internal apps
+
+Required:
+
+* 8+ years of software development
+* Deep knowledge and Expertise in iOS development
+* Familiarity with Swift and modern frameworks
+* Some backend work (e.g. Java, Go, python)
+* Built and shipped apps to consumers
+* BS/MS in Computer Science or a related technical field
+* Track record of shipping apps to the App store
+
+Desired:
+
+* Experience designing for multiple form factors (phone/tablet)
+* Experience in consumer applications
+* Experience with mobile applications on android platforms
+* Familiarity with web technologies (HTTP, RESTful APIs, GraphQL) and modern front-end concepts
+* Are a pilot or have an interest in aviation and/or new transportation technology
+
+Compensation at Joby is a combination of base pay and Restricted Stock Units (RSUs). The target base pay for this position is $132,200 - $197,900/yr. The compensation package will be determined by job-related knowledge, skills, and experience.
+
+Joby also offers a comprehensive benefits package, including paid time off, healthcare benefits, a 401(k) plan with a company match, an employee stock purchase plan (ESPP), short-term and long-term disability coverage, life insurance, and more.
+
+Additional Information:
+
+**Joby is an Equal Opportunity Employer.**","Transport And Freight","https://www.indeed.com/cmp/Joby-Aviation","https://d2q79iu7y748jz.cloudfront.net/s/_squarelogo/256x256/a5219d6d6058a492cd4eab6f7b50623f","https://www.jobyaviation.com","333 Encinal Street
+Santa Cruz, CA 95060","1,001 to 5,000","","","","","","","",""
+"in-5247582982694da1","indeed","https://www.indeed.com/viewjob?jk=5247582982694da1","https://www.amazon.jobs/jobs/2986177/senior-software-engineer-sdeiii-amazon-ads?cmpid=DA_INAD200785B","Senior Software Engineer (SDEIII), Amazon Ads","Amazon.com","Palo Alto, CA, US","2025-05-19","fulltime","direct_data","yearly",151300.0,261500.0,"USD",False,"","","","","**DESCRIPTION**
+---------------
+
+Amazon is investing heavily in building a world class advertising business and we are responsible for defining and delivering a collection of self-service performance advertising products that drive discovery and sales. Our products are strategically important to our Retail and Marketplace businesses driving long term growth. We deliver billions of ad impressions and millions of clicks daily and are breaking fresh ground to create world-class products. We are highly motivated, collaborative and fun-loving with an entrepreneurial spirit and bias for action. With a broad mandate to experiment and innovate, we are growing at an unprecedented rate with a seemingly endless range of new opportunities.  
+  
+Our systems and algorithms operate on one of the world's largest product catalogs, matching shoppers with advertised brands with a high relevance bar and strict latency constraints. We work hand-in-hand with Machine Learning scientists to come up with novel solutions that deliver highly relevant ads. We consistently strive to improve the customer search and detail page experiences. You will drive appropriate technology choices for the business, lead the way for continuous innovation, and shape the future of e-commerce. This is an opportunity to make a significant impact on the future of the Amazon vision.  
+  
+As a Senior Software Engineer, you will drive the technical direction of our offerings and solutions, working with many different technologies across the sponsored products organization. You will design, code, troubleshoot, and support scalable services, machine-learning pipelines and online serving systems, that will handle millions of requests per day, and maintain response latencies of milliseconds, meeting strict SLA requirements (high operational standards). You will work closely with PEs and applied scientists to optimize the performance of machine-learning models and infrastructure, and implement end-to-end solutions. What you create is also what you own. In addition to being a strongly motivated individual contributor, you will also be responsible for mentoring junior engineers and guiding them to deliver to the full potential.
+
+**BASIC QUALIFICATIONS**
+------------------------
+
+* 5+ years of non-internship professional software development experience
+* 5+ years of programming with at least one software programming language experience
+* 5+ years of leading design or architecture (design patterns, reliability and scaling) of new and existing systems experience
+* Experience as a mentor, tech lead or leading an engineering team
+
+**PREFERRED QUALIFICATIONS**
+----------------------------
+
+* 5+ years of full software development life cycle, including coding standards, code reviews, source control management, build processes, testing, and operations experience
+* Bachelor's degree in computer science or equivalent
+
+  
+Amazon is an equal opportunity employer and does not discriminate on the basis of protected veteran status, disability, or other legally protected status.  
+  
+Los Angeles County applicants: Job duties for this position include: work safely and cooperatively with other employees, supervisors, and staff; adhere to standards of excellence despite stressful conditions; communicate effectively and respectfully with employees, supervisors, and staff to ensure exceptional customer service; and follow all federal, state, and local laws and Company policies. Criminal history may have a direct, adverse, and negative relationship with some of the material job duties of this position. These include the duties and responsibilities listed above, as well as the abilities to adhere to company policies, exercise sound judgment, effectively manage stress and work safely and respectfully with others, exhibit trustworthiness and professionalism, and safeguard business operations and the Company’s reputation. Pursuant to the Los Angeles County Fair Chance Ordinance, we will consider for employment qualified applicants with arrest and conviction records.  
+  
+Our inclusive culture empowers Amazonians to deliver the best results for our customers. If you have a disability and need a workplace accommodation or adjustment during the application and hiring process, including support for the interview or onboarding process, please visit https://amazon.jobs/content/en/how-we-hire/accommodations for more information. If the country/region you’re applying in isn’t listed, please contact your Recruiting Partner.  
+  
+Our compensation reflects the cost of labor across several US geographic markets. The base pay for this position ranges from $151,300/year in our lowest geographic market up to $261,500/year in our highest geographic market. Pay is based on a number of factors including market location and may vary depending on job-related knowledge, skills, and experience. Amazon is a total compensation company. Dependent on the position offered, equity, sign-on payments, and other forms of compensation may be provided as part of a total compensation package, in addition to a full range of medical, financial, and/or other benefits. For more information, please visit https://www.aboutamazon.com/workplace/employee-benefits. This position will remain posted until filled. Applicants should apply via our internal or external career site.","Internet And Software","https://www.indeed.com/cmp/Amazon.com","https://d2q79iu7y748jz.cloudfront.net/s/_squarelogo/256x256/3e9d43f5c277de169808abdcaf49ba2c","https://www.amazon.jobs","440 Terry Ave N, Seattle, WA, United States, Washington","10,000+","more than $10B (USD)","Our mission is to be Earth's most customer-centric company.","","","","","",""
+"in-d90e927e4eb894d5","indeed","https://www.indeed.com/viewjob?jk=d90e927e4eb894d5","https://www.amazon.jobs/jobs/2914306/software-development-engineer-frontier-ai--robotics?cmpid=DA_INAD200785B","Software Development Engineer, Frontier AI & Robotics","Amazon.com","San Francisco, CA, US","2025-02-28","fulltime","direct_data","yearly",129300.0,223600.0,"USD",False,"","","","","**DESCRIPTION**
+---------------
+
+Join the next revolution in robotics at Amazon's Frontier AI & Robotics team, where you'll contribute to breakthrough foundation models run at production scale. As a Software Development Engineer embedded in our science team, you'll be instrumental in transforming novel research into high-performance production systems. You'll collaborate directly with scientists to optimize large-scale transformer architectures for robotics applications, leveraging your expertise in CUDA and TensorRT to achieve unprecedented inference efficiency at Amazon scale.  
+  
+In this role, you'll balance deep technical optimization work with strategic input on model architecture decisions, ensuring our innovative robotics models are designed with performance in mind from the ground up. You'll leverage NVIDIA's acceleration stack and other compilation techniques to tackle ambitious performance targets, working at the intersection of large language models and real-world robotics applications.  
+  
+Key job responsibilities  
+
+* Drive inference optimization strategies for large-scale foundation models using TensorRT, CUDA, and other NVIDIA tools
+* Collaborate closely with scientists to influence model architectures for optimal hardware utilization
+* Design and implement efficient compilation pipelines for complex transformer architectures
+* Develop comprehensive benchmarking frameworks to measure and optimize model performance
+* Build robust monitoring solutions to ensure reliable model serving at scale
+* Explore and evaluate emerging optimization techniques including ONNX Runtime and other ML compilers
+* Maintain high engineering standards through proper testing, documentation, and code review practices
+
+  
+A day in the life  
+
+* Optimize transformer blocks using custom CUDA kernels and TensorRT optimization techniques
+* Partner with scientists to analyze model architectures and propose efficiency improvements
+* Implement and benchmark various optimization strategies for large-scale models
+* Debug performance bottlenecks using NVIDIA profiling tools
+* Participate in technical discussions about new model architectures with the science team
+* Design and maintain performance monitoring systems for production deployment
+* Prototype new acceleration approaches using emerging compilation frameworks
+
+  
+About the team  
+At Frontier AI & Robotics, we're not just advancing robotics – we're reimagining it from the ground up. Our team is building the future of intelligent robotics through frontier foundation models and end-to-end learned systems. We tackle some of the most challenging problems in AI and robotics, from developing sophisticated perception systems to creating adaptive manipulation strategies that work in complex, real-world scenarios.  
+  
+What sets us apart is our unique combination of ambitious research vision and practical impact. We leverage Amazon's massive computational infrastructure and rich real-world datasets to train and deploy state-of-the-art foundation models. Our work spans the full spectrum of robotics intelligence – from multimodal perception using images, videos, and sensor data, to sophisticated manipulation strategies that can handle diverse real-world scenarios. We're building systems that don't just work in the lab, but scale to meet the demands of Amazon's global operations.  
+  
+Join us if you're excited about pushing the boundaries of what's possible in robotics, working with world-class researchers, and seeing your innovations deployed at unprecedented scale.
+
+**BASIC QUALIFICATIONS**
+------------------------
+
+* 3+ years of non-internship professional software development experience
+* 2+ years of non-internship design or architecture (design patterns, reliability and scaling) of new and existing systems experience
+* Experience programming with at least one software programming language
+
+**PREFERRED QUALIFICATIONS**
+----------------------------
+
+* 3+ years of full software development life cycle, including coding standards, code reviews, source control management, build processes, testing, and operations experience
+* Bachelor's degree in computer science or equivalent
+
+  
+Amazon is an equal opportunity employer and does not discriminate on the basis of protected veteran status, disability, or other legally protected status.  
+  
+Los Angeles County applicants: Job duties for this position include: work safely and cooperatively with other employees, supervisors, and staff; adhere to standards of excellence despite stressful conditions; communicate effectively and respectfully with employees, supervisors, and staff to ensure exceptional customer service; and follow all federal, state, and local laws and Company policies. Criminal history may have a direct, adverse, and negative relationship with some of the material job duties of this position. These include the duties and responsibilities listed above, as well as the abilities to adhere to company policies, exercise sound judgment, effectively manage stress and work safely and respectfully with others, exhibit trustworthiness and professionalism, and safeguard business operations and the Company’s reputation. Pursuant to the Los Angeles County Fair Chance Ordinance, we will consider for employment qualified applicants with arrest and conviction records.  
+  
+Pursuant to the San Francisco Fair Chance Ordinance, we will consider for employment qualified applicants with arrest and conviction records.  
+  
+Our inclusive culture empowers Amazonians to deliver the best results for our customers. If you have a disability and need a workplace accommodation or adjustment during the application and hiring process, including support for the interview or onboarding process, please visit https://amazon.jobs/content/en/how-we-hire/accommodations for more information. If the country/region you’re applying in isn’t listed, please contact your Recruiting Partner.  
+  
+Our compensation reflects the cost of labor across several US geographic markets. The base pay for this position ranges from $129,300/year in our lowest geographic market up to $223,600/year in our highest geographic market. Pay is based on a number of factors including market location and may vary depending on job-related knowledge, skills, and experience. Amazon is a total compensation company. Dependent on the position offered, equity, sign-on payments, and other forms of compensation may be provided as part of a total compensation package, in addition to a full range of medical, financial, and/or other benefits. For more information, please visit https://www.aboutamazon.com/workplace/employee-benefits. This position will remain posted until filled. Applicants should apply via our internal or external career site.","Internet And Software","https://www.indeed.com/cmp/Amazon.com","https://d2q79iu7y748jz.cloudfront.net/s/_squarelogo/256x256/3e9d43f5c277de169808abdcaf49ba2c","https://www.amazon.jobs","440 Terry Ave N, Seattle, WA, United States, Washington","10,000+","more than $10B (USD)","Our mission is to be Earth's most customer-centric company.","","","","","",""
+"in-b3084c7e49ecea7b","indeed","https://www.indeed.com/viewjob?jk=b3084c7e49ecea7b","https://www.amazon.jobs/jobs/2914307/sr-software-development-engineer-far-frontier-ai--robotics?cmpid=DA_INAD200785B","Sr. Software Development Engineer, FAR (Frontier AI & Robotics)","Amazon.com","San Francisco, CA, US","2025-02-28","fulltime","direct_data","yearly",151300.0,261500.0,"USD",False,"","","","","**DESCRIPTION**
+---------------
+
+Join the next revolution in robotics at Amazon's Frontier AI & Robotics team, where you'll work alongside world-renowned AI pioneers like Pieter Abbeel, Rocky Duan, and Peter Chen to make breakthrough foundation models run at production scale. As a Senior Machine Learning Engineer embedded in our science team, you'll be instrumental in transforming cutting-edge research into high-performance production systems. You'll collaborate directly with scientists to optimize large-scale transformer architectures for robotics applications, leveraging your expertise in CUDA and TensorRT to achieve unprecedented inference efficiency at Amazon scale.  
+In this role, you'll balance deep technical optimization work with strategic input on model architecture decisions, ensuring our innovative robotics models are designed with performance in mind from the ground up. You'll leverage NVIDIA's acceleration stack and other compilation techniques to tackle ambitious performance targets, working at the intersection of large language models and real-world robotics applications.  
+  
+Key job responsibilities  
+
+* Drive inference optimization strategies for large-scale foundation models using TensorRT, CUDA, and other NVIDIA tools
+* Collaborate closely with scientists to influence model architectures for optimal hardware utilization
+* Design and implement efficient compilation pipelines for complex transformer architectures
+* Develop comprehensive benchmarking frameworks to measure and optimize model performance
+* Build robust monitoring solutions to ensure reliable model serving at scale
+* Explore and evaluate emerging optimization techniques including ONNX Runtime and other ML compilers
+* Maintain high engineering standards through proper testing, documentation, and code review practices
+
+  
+A day in the life  
+
+* Optimize transformer blocks using custom CUDA kernels and TensorRT optimization techniques
+* Partner with scientists to analyze model architectures and propose efficiency improvements
+* Implement and benchmark various optimization strategies for large-scale models
+* Debug performance bottlenecks using NVIDIA profiling tools
+* Participate in technical discussions about new model architectures with the science team
+* Design and maintain performance monitoring systems for production deployment
+* Prototype new acceleration approaches using emerging compilation frameworks
+
+  
+About the team  
+At Frontier AI & Robotics, we're not just advancing robotics – we're reimagining it from the ground up. Our team, led by pioneering AI researchers Pieter Abbeel, Rocky Duan, and Peter Chen, is building the future of intelligent robotics through groundbreaking foundation models and end-to-end learned systems. We tackle some of the most challenging problems in AI and robotics, from developing sophisticated perception systems to creating adaptive manipulation strategies that work in complex, real-world scenarios.  
+What sets us apart is our unique combination of ambitious research vision and practical impact. We leverage Amazon's massive computational infrastructure and rich real-world datasets to train and deploy state-of-the-art foundation models. Our work spans the full spectrum of robotics intelligence – from multimodal perception using images, videos, and sensor data, to sophisticated manipulation strategies that can handle diverse real-world scenarios. We're building systems that don't just work in the lab, but scale to meet the demands of Amazon's global operations.  
+Join us if you're excited about pushing the boundaries of what's possible in robotics, working with world-class researchers, and seeing your innovations deployed at unprecedented scale.
+
+**BASIC QUALIFICATIONS**
+------------------------
+
+* Bachelor's degree in computer science or equivalent
+* 5+ years of non-internship professional software development experience
+* 5+ years of programming with at least one software programming language experience
+* 5+ years of leading design or architecture (design patterns, reliability and scaling) of new and existing systems experience
+* Experience as a mentor, tech lead or leading an engineering team
+* Strong expertise in Python, C++ and CUDA programming
+* Experience with TensorRT or similar ML optimization frameworks
+* Track record of optimizing ML models for production
+
+**PREFERRED QUALIFICATIONS**
+----------------------------
+
+* Expertise in NVIDIA's ML stack (cuDNN, CUDA Graph, etc.)
+* Experience with ML compilers (ONNX Runtime, TVM, etc.)
+* Experience with transformer model optimization
+* Background in performance profiling and optimization
+* Experience working directly with research teams
+* Track record of building robust monitoring systems
+* Experience with large-scale ML serving systems
+
+  
+Amazon is an equal opportunity employer and does not discriminate on the basis of protected veteran status, disability, or other legally protected status.  
+  
+Los Angeles County applicants: Job duties for this position include: work safely and cooperatively with other employees, supervisors, and staff; adhere to standards of excellence despite stressful conditions; communicate effectively and respectfully with employees, supervisors, and staff to ensure exceptional customer service; and follow all federal, state, and local laws and Company policies. Criminal history may have a direct, adverse, and negative relationship with some of the material job duties of this position. These include the duties and responsibilities listed above, as well as the abilities to adhere to company policies, exercise sound judgment, effectively manage stress and work safely and respectfully with others, exhibit trustworthiness and professionalism, and safeguard business operations and the Company’s reputation. Pursuant to the Los Angeles County Fair Chance Ordinance, we will consider for employment qualified applicants with arrest and conviction records.  
+  
+Pursuant to the San Francisco Fair Chance Ordinance, we will consider for employment qualified applicants with arrest and conviction records.  
+  
+Our inclusive culture empowers Amazonians to deliver the best results for our customers. If you have a disability and need a workplace accommodation or adjustment during the application and hiring process, including support for the interview or onboarding process, please visit https://amazon.jobs/content/en/how-we-hire/accommodations for more information. If the country/region you’re applying in isn’t listed, please contact your Recruiting Partner.  
+  
+Our compensation reflects the cost of labor across several US geographic markets. The base pay for this position ranges from $151,300/year in our lowest geographic market up to $261,500/year in our highest geographic market. Pay is based on a number of factors including market location and may vary depending on job-related knowledge, skills, and experience. Amazon is a total compensation company. Dependent on the position offered, equity, sign-on payments, and other forms of compensation may be provided as part of a total compensation package, in addition to a full range of medical, financial, and/or other benefits. For more information, please visit https://www.aboutamazon.com/workplace/employee-benefits. This position will remain posted until filled. Applicants should apply via our internal or external career site.","Internet And Software","https://www.indeed.com/cmp/Amazon.com","https://d2q79iu7y748jz.cloudfront.net/s/_squarelogo/256x256/3e9d43f5c277de169808abdcaf49ba2c","https://www.amazon.jobs","440 Terry Ave N, Seattle, WA, United States, Washington","10,000+","more than $10B (USD)","Our mission is to be Earth's most customer-centric company.","","","","","",""
