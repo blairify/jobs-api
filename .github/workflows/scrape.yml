@@ -1,31 +1,48 @@
 name: Scrape Jobs Daily
 
 on:
-  schedule:
-    - cron: '0 0,12 * * *'  # Runs at midnight and noon UTC
-  workflow_dispatch:  # Manual trigger button
+   schedule:
+     - cron: '0 0,12 * * *'  # Runs at midnight and noon UTC
+   workflow_dispatch:  # Manual trigger button
 
 jobs:
-  scrape:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-          cache: 'pip'
-      
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-      
-      - name: Run scraper
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: |
-          python main.py
+   scrape:
+     runs-on: ubuntu-latest
+     timeout-minutes: 60  # Increased timeout for comprehensive scraping
+
+     steps:
+       - name: Checkout code
+         uses: actions/checkout@v4
+
+       - name: Set up Python
+         uses: actions/setup-python@v4
+         with:
+           python-version: '3.10'
+           cache: 'poetry'  # Use Poetry cache
+
+       - name: Install Poetry
+         run: |
+           curl -sSL https://install.python-poetry.org | python3 -
+
+       - name: Configure Poetry
+         run: |
+           poetry config virtualenvs.create true
+           poetry config virtualenvs.in-project false
+
+       - name: Install dependencies
+         run: |
+           poetry install --no-dev --no-interaction
+
+       - name: Run scraper
+         env:
+           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+         run: |
+           poetry run python main.py
+
+       - name: Upload logs on failure
+         if: failure()
+         uses: actions/upload-artifact@v4
+         with:
+           name: scraper-logs
+           path: scraper.log
+           retention-days: 7
