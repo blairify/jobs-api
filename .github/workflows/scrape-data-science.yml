@@ -1,7 +1,5 @@
-# .github/workflows/scrape.yml
-# LEGACY: Original workflow - now runs all configs (use specialized workflows instead)
-
-name: Scrape All Jobs (Legacy)
+# .github/workflows/scrape-data-science.yml
+name: Scrape Data Science Jobs
 
 on:
   push:
@@ -10,13 +8,15 @@ on:
       - 'main.py'
       - 'jobspy/**'
       - 'requirements.txt'
-      - '.github/workflows/scrape.yml'
-  workflow_dispatch:  # Manual trigger only
+      - '.github/workflows/scrape-data-science.yml'
+  schedule:
+    - cron: '0 2,14 * * *'  # Runs at 2 AM and 2 PM UTC (2 hours after software engineering)
+  workflow_dispatch:
 
 jobs:
   scrape:
     runs-on: ubuntu-latest
-    timeout-minutes: 120  # Extended timeout for all configs
+    timeout-minutes: 30
 
     steps:
       - name: Checkout code
@@ -33,17 +33,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run scraper for all jobs
+      - name: Run scraper for data science jobs
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          python main.py all
+          python main.py data_science
 
       - name: Upload logs on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: scraper-logs-all
+          name: scraper-logs-data-science
           path: |
             scraper.log
             *.csv

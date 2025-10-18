@@ -3,7 +3,7 @@ import logging
 import pandas as pd
 from datetime import datetime
 from jobspy import scrape_jobs
-from jobspy.config import SEARCH_CONFIGS
+from jobspy.config import SEARCH_CONFIGS, CONFIG_GROUPS
 import psycopg2
 from psycopg2.extras import execute_values
 import time
@@ -223,9 +223,13 @@ def scrape_and_save(config, db):
         logger.error(f"Error scraping {config['query_id']}: {e}")
         # Continue with other configs even if one fails
 
-def main():
-    """Main function to run all scraping configurations"""
-    logger.info("Starting job scraping workflow")
+def main(config_group="all"):
+    """Main function to run scraping configurations
+
+    Args:
+        config_group: Which config group to run ('all', 'software_engineering', 'data_science', etc.)
+    """
+    logger.info(f"Starting job scraping workflow for group: {config_group}")
 
     # Get database connection string
     db_url = os.getenv('DATABASE_URL')
@@ -236,13 +240,23 @@ def main():
     # Initialize database
     db = JobDatabase(db_url)
 
-    # Run all scraping configurations
+    # Get the appropriate config group
+    if config_group not in CONFIG_GROUPS:
+        logger.error(f"Unknown config group: {config_group}. Available: {list(CONFIG_GROUPS.keys())}")
+        return
+
+    configs = CONFIG_GROUPS[config_group]
+    logger.info(f"Running {len(configs)} configurations for group '{config_group}'")
+
+    # Run scraping configurations
     total_jobs = 0
-    for config in SEARCH_CONFIGS:
+    for config in configs:
         scrape_and_save(config, db)
         # Could track total jobs here if needed
 
-    logger.info("Job scraping workflow completed")
+    logger.info(f"Job scraping workflow completed for group: {config_group}")
 
 if __name__ == "__main__":
-    main()
+    import sys
+    config_group = sys.argv[1] if len(sys.argv) > 1 else "all"
+    main(config_group)
