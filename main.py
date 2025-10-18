@@ -154,11 +154,22 @@ class JobDatabase:
             )
             jobs_data.append(job_tuple)
 
-        # Filter out jobs that already exist
+        # Filter out jobs that already exist or have no description
         new_jobs = []
         for job in jobs_data:
-            if not self.job_exists(job[0]):
-                new_jobs.append(job)
+            job_id = job[0]
+            description = job[19]  # description is at index 19 in the tuple
+            
+            # Skip if job already exists
+            if self.job_exists(job_id):
+                continue
+                
+            # Skip if description is empty, None, or whitespace
+            if not description or (isinstance(description, str) and not description.strip()):
+                logger.info(f"Skipping job {job_id} - no description provided")
+                continue
+                
+            new_jobs.append(job)
 
         if not new_jobs:
             logger.info("No new jobs to insert")
