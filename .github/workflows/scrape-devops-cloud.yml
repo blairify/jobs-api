@@ -10,13 +10,13 @@ on:
       - 'requirements.txt'
       - '.github/workflows/scrape-devops-cloud.yml'
   schedule:
-    - cron: '0 6,18 * * *'  # Runs at 6 AM and 6 PM UTC (2 hours after web dev)
+    - cron: '0 3 */2 * *'  # Runs at 3 AM UTC every 2 days
   workflow_dispatch:
 
 jobs:
   scrape:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
 
     steps:
       - name: Checkout code

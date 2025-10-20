@@ -10,13 +10,13 @@ on:
       - 'requirements.txt'
       - '.github/workflows/scrape-specialized.yml'
   schedule:
-    - cron: '0 8,20 * * *'  # Runs at 8 AM and 8 PM UTC (2 hours after devops/cloud)
+    - cron: '0 8 */2 * *'  # Runs at 8 AM UTC every 2 days
   workflow_dispatch:
 
 jobs:
   scrape:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
 
     steps:
       - name: Checkout code

@@ -10,13 +10,14 @@ on:
       - 'requirements.txt'
       - '.github/workflows/scrape-data-science.yml'
   schedule:
-    - cron: '0 2,14 * * *'  # Runs at 2 AM and 2 PM UTC (2 hours after software engineering)
+    - cron: '0 2 */2 * *'  # Runs at 2 AM UTC every 2 days
+  # Runs at 2 AM and 2 PM UTC (2 hours after software engineering)
   workflow_dispatch:
 
 jobs:
   scrape:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
 
     steps:
       - name: Checkout code
