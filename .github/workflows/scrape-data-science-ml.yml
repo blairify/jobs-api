@@ -1,0 +1,56 @@
+# .github/workflows/scrape-data-science-ml.yml
+name: Scrape Data Science & ML/AI
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'main.py'
+      - 'jobspy/**'
+      - 'requirements.txt'
+      - '.github/workflows/scrape-data-science-ml.yml'
+  schedule:
+    - cron: '30 7 */2 * *'  # Runs at 7:30 AM UTC every 2 days
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run scraper for Data Science
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          python main.py data_science
+
+      - name: Run scraper for ML & AI
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          python main.py ml_ai
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scraper-logs-data-science-ml
+          path: |
+            scraper.log
+            *.csv
+          retention-days: 7

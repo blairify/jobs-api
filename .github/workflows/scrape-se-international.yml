@@ -1,5 +1,5 @@
-# .github/workflows/scrape-software-engineering.yml
-name: Scrape Software Engineering Jobs
+# .github/workflows/scrape-se-international.yml
+name: Scrape SE International
 
 on:
   push:
@@ -8,15 +8,15 @@ on:
       - 'main.py'
       - 'jobspy/**'
       - 'requirements.txt'
-      - '.github/workflows/scrape-software-engineering.yml'
+      - '.github/workflows/scrape-se-international.yml'
   schedule:
-    - cron: '0 4 */2 * *'  # Runs at 2 AM UTC every 2 days
+    - cron: '0 5 */2 * *'  # Runs at 5 AM UTC every 2 days
   workflow_dispatch:
 
 jobs:
   scrape:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 25
 
     steps:
       - name: Checkout code
@@ -33,17 +33,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run scraper for software engineering jobs
+      - name: Run scraper for SE International
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          python main.py software_engineering
+          python main.py se_international
 
       - name: Upload logs on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: scraper-logs-software-engineering
+          name: scraper-logs-se-international
           path: |
             scraper.log
             *.csv

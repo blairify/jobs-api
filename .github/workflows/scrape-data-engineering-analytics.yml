@@ -1,5 +1,5 @@
-# .github/workflows/scrape-web-dev.yml
-name: Scrape Web Development Jobs
+# .github/workflows/scrape-data-engineering-analytics.yml
+name: Scrape Data Engineering & Analytics
 
 on:
   push:
@@ -8,9 +8,9 @@ on:
       - 'main.py'
       - 'jobspy/**'
       - 'requirements.txt'
-      - '.github/workflows/scrape-web-dev.yml'
+      - '.github/workflows/scrape-data-engineering-analytics.yml'
   schedule:
-    - cron: '0 9 */2 * *'  # Runs at 9 AM UTC every 2 days
+    - cron: '0 8 */2 * *'  # Runs at 8 AM UTC every 2 days
   workflow_dispatch:
 
 jobs:
@@ -33,17 +33,23 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run scraper for web development jobs
+      - name: Run scraper for Data Engineering
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          python main.py web_development
+          python main.py data_engineering
+
+      - name: Run scraper for Data Analytics
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          python main.py data_analytics
 
       - name: Upload logs on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: scraper-logs-web-dev
+          name: scraper-logs-data-engineering-analytics
           path: |
             scraper.log
             *.csv

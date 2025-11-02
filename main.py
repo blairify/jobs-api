@@ -3,7 +3,7 @@ import logging
 import pandas as pd
 from datetime import datetime
 from jobspy import scrape_jobs
-from jobspy.config import SEARCH_CONFIGS, CONFIG_GROUPS
+from jobspy.config import CONFIG_GROUPS
 import psycopg2
 from psycopg2.extras import execute_values
 import time

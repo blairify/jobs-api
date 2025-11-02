@@ -1,5 +1,5 @@
-# .github/workflows/scrape-data-science.yml
-name: Scrape Data Science Jobs
+# .github/workflows/scrape-devops-cloud-mobile.yml
+name: Scrape DevOps, Cloud & Mobile
 
 on:
   push:
@@ -8,16 +8,15 @@ on:
       - 'main.py'
       - 'jobspy/**'
       - 'requirements.txt'
-      - '.github/workflows/scrape-data-science.yml'
+      - '.github/workflows/scrape-devops-cloud-mobile.yml'
   schedule:
-    - cron: '0 2 */2 * *'  # Runs at 2 AM UTC every 2 days
-  # Runs at 2 AM and 2 PM UTC (2 hours after software engineering)
+    - cron: '30 8 */2 * *'  # Runs at 8:30 AM UTC every 2 days
   workflow_dispatch:
 
 jobs:
   scrape:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
 
     steps:
       - name: Checkout code
@@ -34,17 +33,29 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run scraper for data science jobs
+      - name: Run scraper for DevOps
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          python main.py data_science
+          python main.py devops
+
+      - name: Run scraper for Cloud
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          python main.py cloud
+
+      - name: Run scraper for Mobile
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          python main.py mobile
 
       - name: Upload logs on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: scraper-logs-data-science
+          name: scraper-logs-devops-cloud-mobile
           path: |
             scraper.log
             *.csv

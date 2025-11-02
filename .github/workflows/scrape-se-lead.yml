@@ -1,5 +1,5 @@
-# .github/workflows/scrape-specialized.yml
-name: Scrape Specialized Jobs
+# .github/workflows/scrape-se-lead.yml
+name: Scrape SE Lead & Architect
 
 on:
   push:
@@ -8,15 +8,15 @@ on:
       - 'main.py'
       - 'jobspy/**'
       - 'requirements.txt'
-      - '.github/workflows/scrape-specialized.yml'
+      - '.github/workflows/scrape-se-lead.yml'
   schedule:
-    - cron: '0 8 */2 * *'  # Runs at 8 AM UTC every 2 days
+    - cron: '0 4 */2 * *'  # Runs at 4 AM UTC every 2 days
   workflow_dispatch:
 
 jobs:
   scrape:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45
 
     steps:
       - name: Checkout code
@@ -33,17 +33,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run scraper for specialized jobs
+      - name: Run scraper for SE Lead & Architect
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          python main.py specialized
+          python main.py se_lead_architect
 
       - name: Upload logs on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: scraper-logs-specialized
+          name: scraper-logs-se-lead
           path: |
             scraper.log
             *.csv

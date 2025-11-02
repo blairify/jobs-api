@@ -1,5 +1,5 @@
-# .github/workflows/scrape-devops-cloud.yml
-name: Scrape DevOps & Cloud Jobs
+# .github/workflows/scrape-frontend.yml
+name: Scrape Frontend
 
 on:
   push:
@@ -8,15 +8,15 @@ on:
       - 'main.py'
       - 'jobspy/**'
       - 'requirements.txt'
-      - '.github/workflows/scrape-devops-cloud.yml'
+      - '.github/workflows/scrape-frontend.yml'
   schedule:
-    - cron: '0 3 */2 * *'  # Runs at 3 AM UTC every 2 days
+    - cron: '0 6 */2 * *'  # Runs at 6 AM UTC every 2 days
   workflow_dispatch:
 
 jobs:
   scrape:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
 
     steps:
       - name: Checkout code
@@ -33,17 +33,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run scraper for DevOps and cloud jobs
+      - name: Run scraper for Frontend
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          python main.py devops_cloud
+          python main.py frontend
 
       - name: Upload logs on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: scraper-logs-devops-cloud
+          name: scraper-logs-frontend
           path: |
             scraper.log
             *.csv
