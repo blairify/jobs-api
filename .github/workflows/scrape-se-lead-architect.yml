@@ -1,14 +1,7 @@
-# .github/workflows/scrape-se-mid.yml
-name: Scrape SE Mid Level
+# .github/workflows/scrape-se-lead-architect.yml
+name: SE Lead & Architect (Limited)
 
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'main.py'
-      - 'jobspy/**'
-      - 'requirements.txt'
-      - '.github/workflows/scrape-se-mid.yml'
   schedule:
     - cron: '0 2 */2 * *'  # Runs at 2 AM UTC every 2 days
   workflow_dispatch:
@@ -16,7 +9,7 @@ on:
 jobs:
   scrape:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 15
 
     steps:
       - name: Checkout code
@@ -33,17 +26,30 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run scraper for SE Mid Level
+      - name: Run scraper (lead architect nationwide)
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          python main.py se_mid
+          python -c "
+          from main import main, JobDatabase
+          from jobspy.config import CONFIG_GROUPS
+          import os
+          
+          db = JobDatabase(os.getenv('DATABASE_URL'))
+          # All nationwide lead/architect queries (18 total)
+          configs = CONFIG_GROUPS['se_lead_architect'][:18]
+          
+          from main import scrape_and_save
+          for config in configs:
+              scrape_and_save(config, db)
+          "
+        timeout-minutes: 13
 
       - name: Upload logs on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: scraper-logs-se-mid
+          name: scraper-logs-se-lead-architect
           path: |
             scraper.log
             *.csv

@@ -1,14 +1,7 @@
-# .github/workflows/scrape-se-senior.yml
-name: Scrape SE Senior Level
+# .github/workflows/scrape-se-cities-lead.yml
+name: SE Cities - Lead & Architect
 
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'main.py'
-      - 'jobspy/**'
-      - 'requirements.txt'
-      - '.github/workflows/scrape-se-senior.yml'
   schedule:
     - cron: '0 3 */2 * *'  # Runs at 3 AM UTC every 2 days
   workflow_dispatch:
@@ -16,7 +9,7 @@ on:
 jobs:
   scrape:
     runs-on: ubuntu-latest
-    timeout-minutes: 50
+    timeout-minutes: 15
 
     steps:
       - name: Checkout code
@@ -33,17 +26,31 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run scraper for SE Senior Level
+      - name: Run scraper for lead city queries
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          python main.py se_senior
+          python -c "
+          from main import main, JobDatabase
+          from jobspy.config import CONFIG_GROUPS
+          import os
+          
+          db = JobDatabase(os.getenv('DATABASE_URL'))
+          
+          # Lead/architect city queries (9 total: 3 terms × 3 cities)
+          configs = CONFIG_GROUPS['se_lead_architect'][18:]
+          
+          from main import scrape_and_save
+          for config in configs:
+              scrape_and_save(config, db)
+          "
+        timeout-minutes: 13
 
       - name: Upload logs on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: scraper-logs-se-senior
+          name: scraper-logs-se-cities-lead
           path: |
             scraper.log
             *.csv

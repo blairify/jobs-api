@@ -4,10 +4,10 @@
 # ========================================
 
 # --- Base parameters ---
-DEFAULT_SITES = ["linkedin", "indeed"]
-DEFAULT_RESULTS = 50
+DEFAULT_SITES = ["linkedin", "indeed"]  # Both sites for maximum data
+DEFAULT_RESULTS = 20  # Optimized for speed vs data balance
 DEFAULT_HOURS = 72
-DEFAULT_DELAY = 3
+DEFAULT_DELAY = 0  # No delay - sites can handle it
 
 # --- Major Location Groups ---
 US_MAJOR_CITIES = ["San Francisco, CA", "New York, NY", "Austin, TX", "Seattle, WA", 
@@ -74,10 +74,10 @@ for term in entry_level_terms:
         "location": "United States"
     })
 
-# Entry level in major cities (top terms only)
-entry_top_terms = ["junior software engineer", "entry level software engineer", "new grad software engineer", "associate software engineer"]
+# Entry level in major cities (top terms only - reduced to top 3 cities)
+entry_top_terms = ["junior software engineer", "entry level software engineer", "new grad software engineer"]
 for term in entry_top_terms:
-    for city in ["San Francisco, CA", "New York, NY", "Seattle, WA", "Austin, TX", "Boston, MA", "Los Angeles, CA", "Chicago, IL"]:
+    for city in ["San Francisco, CA", "New York, NY", "Seattle, WA"]:
         SE_ENTRY_LEVEL.append({
             "query_id": f"{term.replace(' ', '_')}_{city.split(',')[0].lower().replace(' ', '_')}",
             "search_term": term,
@@ -114,10 +114,10 @@ for term in mid_level_terms:
         "location": "United States"
     })
 
-# Mid-level in major cities (top terms)
-mid_top_terms = ["software engineer", "software developer", "software engineer ii", "software engineer iii"]
+# Mid-level in major cities (top terms - reduced to top 3 cities)
+mid_top_terms = ["software engineer", "software developer", "software engineer ii"]
 for term in mid_top_terms:
-    for city in ["San Francisco, CA", "New York, NY", "Seattle, WA", "Austin, TX", "Boston, MA", "Los Angeles, CA", "Chicago, IL", "Denver, CO"]:
+    for city in ["San Francisco, CA", "New York, NY", "Seattle, WA"]:
         SE_MID_LEVEL.append({
             "query_id": f"{term.replace(' ', '_')}_{city.split(',')[0].lower().replace(' ', '_')}",
             "search_term": term,
@@ -157,10 +157,10 @@ for term in senior_terms:
         "location": "United States"
     })
 
-# Senior in major cities (top terms)
-senior_top_terms = ["senior software engineer", "staff software engineer", "principal software engineer", "senior software developer"]
+# Senior in major cities (top terms - reduced to top 3 cities)
+senior_top_terms = ["senior software engineer", "staff software engineer", "principal software engineer"]
 for term in senior_top_terms:
-    for city in ["San Francisco, CA", "New York, NY", "Seattle, WA", "Austin, TX", "Boston, MA", "Los Angeles, CA", "Chicago, IL", "Denver, CO", "San Diego, CA"]:
+    for city in ["San Francisco, CA", "New York, NY", "Seattle, WA"]:
         SE_SENIOR_LEVEL.append({
             "query_id": f"{term.replace(' ', '_')}_{city.split(',')[0].lower().replace(' ', '_')}",
             "search_term": term,
@@ -202,10 +202,10 @@ for term in lead_architect_terms:
         "location": "United States"
     })
 
-# Lead/Architect in top tech hubs
-lead_top_terms = ["lead software engineer", "technical lead", "software architect", "solutions architect", "principal architect"]
+# Lead/Architect in top tech hubs (reduced to top 3 cities)
+lead_top_terms = ["lead software engineer", "technical lead", "software architect"]
 for term in lead_top_terms:
-    for city in ["San Francisco, CA", "New York, NY", "Seattle, WA", "Austin, TX", "Boston, MA", "Los Angeles, CA"]:
+    for city in ["San Francisco, CA", "New York, NY", "Seattle, WA"]:
         SE_LEAD_ARCHITECT.append({
             "query_id": f"{term.replace(' ', '_')}_{city.split(',')[0].lower().replace(' ', '_')}",
             "search_term": term,

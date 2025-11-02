@@ -1,22 +1,15 @@
-# .github/workflows/scrape-se-lead.yml
-name: Scrape SE Lead & Architect
+# .github/workflows/scrape-web-dev-all.yml
+name: Web Development - All
 
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'main.py'
-      - 'jobspy/**'
-      - 'requirements.txt'
-      - '.github/workflows/scrape-se-lead.yml'
   schedule:
-    - cron: '0 4 */2 * *'  # Runs at 4 AM UTC every 2 days
+    - cron: '0 6 */2 * *'  # Runs at 6 AM UTC every 2 days
   workflow_dispatch:
 
 jobs:
   scrape:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 20
 
     steps:
       - name: Checkout code
@@ -33,17 +26,20 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run scraper for SE Lead & Architect
+      - name: Run scraper for all web dev
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          python main.py se_lead_architect
+          python main.py frontend
+          python main.py backend
+          python main.py fullstack
+        timeout-minutes: 18
 
       - name: Upload logs on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: scraper-logs-se-lead
+          name: scraper-logs-web-dev-all
           path: |
             scraper.log
             *.csv
