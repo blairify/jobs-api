@@ -1,0 +1,67 @@
+# .github/workflows/dispatch-all-scrapes.yml
+name: Dispatch All Scrapers
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Git ref (branch/tag) to dispatch on"
+        required: false
+        default: "main"
+      include_web_dev_all:
+        description: "Include web-dev-all (longer run)"
+        required: false
+        default: "true"
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: List workflows
+        run: ls -1 .github/workflows
+
+      - name: Dispatch all scraper workflows
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const ref = core.getInput('ref') || 'main';
+            const includeWeb = core.getInput('include_web_dev_all') === 'true';
+            // Workflow filenames to dispatch
+            const workflows = [
+              'scrape-se-general.yml',
+              'scrape-se-mid-senior.yml',
+              'scrape-se-lead-architect.yml',
+              'scrape-se-entry-nationwide.yml',
+              'scrape-se-entry-cities.yml',
+              'scrape-se-cities-mid-senior.yml',
+              'scrape-se-cities-lead.yml',
+              'scrape-se-international.yml',
+              'scrape-devops-cloud-mobile.yml',
+              'scrape-devops-cloud.yml',
+              'scrape-qa-security-database.yml',
+              'scrape-product-design-systems.yml',
+              'scrape-data-engineering-analytics.yml',
+              'scrape-data-science-ml.yml',
+              'scrape-emerging-remote-internship.yml'
+            ];
+            if (includeWeb) workflows.push('scrape-web-dev-all.yml');
+
+            for (const wf of workflows) {
+              core.info(`Dispatching ${wf} on ref ${ref}`);
+              try {
+                await github.rest.actions.createWorkflowDispatch({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  workflow_id: wf,
+                  ref
+                });
+              } catch (err) {
+                core.warning(`Failed to dispatch ${wf}: ${err.message}`);
+              }
+            }
+            core.notice(`Requested dispatch of ${workflows.length} workflows.`);
+
+      - name: Summary
+        run: echo "All dispatch requests sent. Check Actions tab for queued runs."
