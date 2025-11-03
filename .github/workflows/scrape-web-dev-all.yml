@@ -3,7 +3,7 @@ name: Web Development - All
 
 on:
   schedule:
-    - cron: '0 6 */2 * *'
+    - cron: '0 4 */2 * *'
 jobs:
   scrape:
     runs-on: ubuntu-latest
