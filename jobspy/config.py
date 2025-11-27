@@ -226,6 +226,45 @@ for city in EUROPE_MAJOR + ASIA_PACIFIC + CANADA_CITIES:
         "location": city
     })
 
+# Focused EU capitals workflow
+EU_CAPITALS = [
+    "Vienna, Austria",
+    "Brussels, Belgium",
+    "Sofia, Bulgaria",
+    "Zagreb, Croatia",
+    "Nicosia, Cyprus",
+    "Prague, Czech Republic",
+    "Copenhagen, Denmark",
+    "Tallinn, Estonia",
+    "Helsinki, Finland",
+    "Paris, France",
+    "Berlin, Germany",
+    "Athens, Greece",
+    "Budapest, Hungary",
+    "Dublin, Ireland",
+    "Rome, Italy",
+    "Riga, Latvia",
+    "Vilnius, Lithuania",
+    "Luxembourg, Luxembourg",
+    "Valletta, Malta",
+    "Amsterdam, Netherlands",
+    "Warsaw, Poland",
+    "Lisbon, Portugal",
+    "Bucharest, Romania",
+    "Bratislava, Slovakia",
+    "Ljubljana, Slovenia",
+    "Madrid, Spain",
+    "Stockholm, Sweden",
+]
+
+SE_EU_CAPITALS = []
+for city in EU_CAPITALS:
+    SE_EU_CAPITALS.append({
+        "query_id": f"software_engineer_{city.split(',')[0].lower().replace(' ', '_')}",
+        "search_term": "software engineer",
+        "location": city,
+    })
+
 # ========================================
 # WORKFLOW 4: FRONTEND DEVELOPMENT
 # ========================================
@@ -508,7 +547,7 @@ def apply_defaults(configs):
 
 # Apply defaults to all configs
 ALL_WORKFLOW_CONFIGS = [
-    SE_GENERAL_US, SE_ENTRY_LEVEL, SE_MID_LEVEL, SE_SENIOR_LEVEL, SE_LEAD_ARCHITECT, SE_INTERNATIONAL,
+    SE_GENERAL_US, SE_ENTRY_LEVEL, SE_MID_LEVEL, SE_SENIOR_LEVEL, SE_LEAD_ARCHITECT, SE_INTERNATIONAL, SE_EU_CAPITALS,
     FRONTEND_CONFIGS, BACKEND_CONFIGS, FULLSTACK_CONFIGS,
     DATA_SCIENCE_CONFIGS, DATA_ENGINEERING_CONFIGS, DATA_ANALYTICS_CONFIGS,
     ML_AI_CONFIGS, DEVOPS_CONFIGS, CLOUD_CONFIGS,
@@ -532,6 +571,7 @@ CONFIG_GROUPS = {
     "se_senior": SE_SENIOR_LEVEL,
     "se_lead_architect": SE_LEAD_ARCHITECT,
     "se_international": SE_INTERNATIONAL,
+    "se_eu_capitals": SE_EU_CAPITALS,
     
     # Web Development (3 workflows)
     "frontend": FRONTEND_CONFIGS,
@@ -577,7 +617,7 @@ CONFIG_GROUPS = {
     # Combined views
     "all_data": DATA_SCIENCE_CONFIGS + DATA_ENGINEERING_CONFIGS + DATA_ANALYTICS_CONFIGS,
     "all_web": FRONTEND_CONFIGS + BACKEND_CONFIGS + FULLSTACK_CONFIGS,
-    "all_se": SE_GENERAL_US + SE_ENTRY_LEVEL + SE_MID_LEVEL + SE_SENIOR_LEVEL + SE_LEAD_ARCHITECT + SE_INTERNATIONAL,
+    "all_se": SE_GENERAL_US + SE_ENTRY_LEVEL + SE_MID_LEVEL + SE_SENIOR_LEVEL + SE_LEAD_ARCHITECT + SE_INTERNATIONAL + SE_EU_CAPITALS,
     "all_se_levels": SE_ENTRY_LEVEL + SE_MID_LEVEL + SE_SENIOR_LEVEL + SE_LEAD_ARCHITECT,
 }
 

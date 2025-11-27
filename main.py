@@ -65,6 +65,12 @@ class JobDatabase:
             company_reviews_count INTEGER,
             vacancy_count INTEGER,
             work_from_home_type TEXT,
+            seniority_level VARCHAR(20),
+            role_family VARCHAR(50),
+            primary_language VARCHAR(50),
+            tech_tags TEXT,
+            city_normalized VARCHAR(100),
+            country_normalized VARCHAR(100),
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
@@ -73,6 +79,14 @@ class JobDatabase:
         CREATE INDEX IF NOT EXISTS idx_jobs_date_posted ON jobs(date_posted);
         CREATE INDEX IF NOT EXISTS idx_jobs_company ON jobs(company);
         CREATE INDEX IF NOT EXISTS idx_jobs_title ON jobs(title);
+
+        ALTER TABLE jobs
+            ADD COLUMN IF NOT EXISTS seniority_level VARCHAR(20),
+            ADD COLUMN IF NOT EXISTS role_family VARCHAR(50),
+            ADD COLUMN IF NOT EXISTS primary_language VARCHAR(50),
+            ADD COLUMN IF NOT EXISTS tech_tags TEXT,
+            ADD COLUMN IF NOT EXISTS city_normalized VARCHAR(100),
+            ADD COLUMN IF NOT EXISTS country_normalized VARCHAR(100);
         """
         try:
             with self.get_connection() as conn:
@@ -96,6 +110,159 @@ class JobDatabase:
             logger.error(f"Error checking if job exists: {e}")
             return False
 
+    def _normalize_str(self, value):
+        if pd.isna(value):
+            return None
+        if isinstance(value, str):
+            cleaned = value.strip()
+            if not cleaned:
+                return None
+            lower = cleaned.lower()
+            if lower in ("nan", "none", "null"):
+                return None
+            return cleaned
+        return str(value)
+
+    def _infer_seniority_level(self, title, description):
+        text = f"{title or ''} {description or ''}".lower()
+
+        if any(k in text for k in ["intern ", "internship", "trainee"]):
+            return "intern"
+        if any(k in text for k in ["junior", " jr ", " jr.", "entry level", "new grad", "graduate", "early career", "associate"]):
+            return "entry"
+        if any(k in text for k in ["lead ", "lead-", "principal", "staff", "head of", "architect"]):
+            return "lead"
+        if any(k in text for k in ["senior", " sr ", " sr."]):
+            return "senior"
+        if any(k in text for k in ["mid level", "mid-level", "intermediate", " level ii", " level 2", " level iii", " level 3"]):
+            return "mid"
+        if "software engineer" in text or "software developer" in text or "swe" in text:
+            return "mid"
+        return None
+
+    def _infer_role_family(self, title, description):
+        text = f"{title or ''} {description or ''}".lower()
+
+        if "data scientist" in text:
+            return "data_scientist"
+        if any(k in text for k in ["machine learning engineer", "ml engineer", "ai engineer", "deep learning"]):
+            return "ml_ai"
+        if any(k in text for k in ["data engineer", "etl developer", "data pipeline engineer", "big data engineer"]):
+            return "data_engineer"
+        if any(k in text for k in ["data analyst", "business analyst", "bi developer", "analytics engineer"]):
+            return "data_analyst"
+        if any(k in text for k in ["devops", "site reliability engineer", "sre", "platform engineer", "infrastructure engineer"]):
+            return "devops"
+        if any(k in text for k in ["cloud engineer", "cloud architect", "aws engineer", "azure engineer", "gcp engineer"]):
+            return "cloud"
+        if any(k in text for k in ["security engineer", "cybersecurity", "info security", "penetration tester", "ethical hacker"]):
+            return "security"
+        if any(k in text for k in ["frontend", "front end", "ui developer", "react developer", "angular developer", "vue developer"]):
+            return "frontend"
+        if any(k in text for k in ["backend", "back end", "server-side"]):
+            return "backend"
+        if any(k in text for k in ["full stack", "fullstack", "mern", "mean"]):
+            return "fullstack"
+        if any(k in text for k in ["ios", "android", "mobile developer", "react native", "flutter", "swift developer", "kotlin developer"]):
+            return "mobile"
+        if any(k in text for k in ["qa engineer", "quality assurance", "test engineer", "sdet", "automation engineer"]):
+            return "qa"
+        if any(k in text for k in ["product manager", "product owner"]):
+            return "product"
+        if any(k in text for k in ["project manager", "program manager", "scrum master"]):
+            return "project"
+        if any(k in text for k in ["ux designer", "ui designer", "product designer", "interaction designer", "ux researcher"]):
+            return "design"
+        if any(k in text for k in ["software engineer", "software developer", "swe"]):
+            return "software_engineer"
+        return None
+
+    def _extract_tech_tags(self, title, description):
+        text = f"{title or ''} {description or ''}".lower()
+        tags = set()
+
+        patterns = {
+            "python": ["python"],
+            "java": [" java "],
+            "javascript": ["javascript", " js "],
+            "typescript": ["typescript", " ts "],
+            "c++": ["c++"],
+            "c#": ["c#"],
+            "go": [" golang", " go "],
+            "rust": ["rust"],
+            "ruby": ["ruby"],
+            "php": ["php"],
+            "scala": ["scala"],
+            "kotlin": ["kotlin"],
+            "swift": ["swift"],
+            "node.js": ["node.js", "nodejs"],
+            "react": [" react"],
+            "angular": ["angular"],
+            "vue": [" vue"],
+            "django": ["django"],
+            "flask": ["flask"],
+            "spring": ["spring boot", "spring framework"],
+            "rails": ["rails", "ruby on rails"],
+            "dotnet": [".net", "dotnet"],
+            "aws": ["aws"],
+            "azure": ["azure"],
+            "gcp": ["gcp", "google cloud"],
+            "docker": ["docker"],
+            "kubernetes": ["kubernetes", "k8s"],
+            "terraform": ["terraform"],
+            "ansible": ["ansible"],
+            "postgres": ["postgres", "postgresql"],
+            "mysql": ["mysql"],
+            "mongodb": ["mongodb"],
+            "redis": ["redis"],
+            "kafka": ["kafka"],
+            "spark": ["spark"],
+        }
+
+        for tag, needles in patterns.items():
+            if any(n in text for n in needles):
+                tags.add(tag)
+
+        if not tags:
+            return None, None
+
+        language_order = [
+            "python",
+            "javascript",
+            "typescript",
+            "java",
+            "c++",
+            "c#",
+            "go",
+            "rust",
+            "ruby",
+            "php",
+            "scala",
+            "kotlin",
+            "swift",
+        ]
+
+        primary_language = None
+        for lang in language_order:
+            if lang in tags:
+                primary_language = lang
+                break
+
+        tech_tags = ",".join(sorted(tags))
+        return primary_language, tech_tags
+
+    def _normalize_location_parts(self, location):
+        if not location:
+            return None, None
+        if isinstance(location, str):
+            parts = [p.strip() for p in location.split(',') if p.strip()]
+            if not parts:
+                return None, None
+            city = parts[0]
+            country = parts[-1] if len(parts) > 1 else None
+            return city, country
+        return None, None
+
     def insert_jobs(self, jobs_df):
         """Insert new jobs into the database, skipping duplicates"""
         if jobs_df.empty:
@@ -107,14 +274,21 @@ class JobDatabase:
         for _, row in jobs_df.iterrows():
             # Convert date_posted to proper format
             date_posted = None
-            if pd.notna(row.get('date_posted')):
-                if isinstance(row['date_posted'], str):
-                    try:
-                        date_posted = datetime.strptime(row['date_posted'], '%Y-%m-%d').date()
-                    except ValueError:
-                        date_posted = None
-                elif isinstance(row['date_posted'], datetime):
-                    date_posted = row['date_posted'].date()
+            raw_date = row.get('date_posted')
+            if pd.notna(raw_date):
+                try:
+                    date_posted = pd.to_datetime(raw_date).date()
+                except Exception:
+                    date_posted = None
+
+            title = row.get('title')
+            description = row.get('description')
+            location = row.get('location')
+
+            seniority_level = self._infer_seniority_level(title, description)
+            role_family = self._infer_role_family(title, description)
+            primary_language, tech_tags = self._extract_tech_tags(title, description)
+            city_norm, country_norm = self._normalize_location_parts(location)
 
             job_tuple = (
                 str(row.get('id', '')),
@@ -122,35 +296,41 @@ class JobDatabase:
                 str(row.get('job_url', '')),
                 str(row.get('job_url_direct', '')),
                 str(row.get('title', '')),
-                str(row.get('company', '')),
-                str(row.get('location', '')),
+                self._normalize_str(row.get('company')),
+                self._normalize_str(row.get('location')),
                 date_posted,
-                str(row.get('job_type', '')),
-                str(row.get('salary_source', '')),
-                str(row.get('interval', '')),
+                self._normalize_str(row.get('job_type')),
+                self._normalize_str(row.get('salary_source')),
+                self._normalize_str(row.get('interval')),
                 float(row.get('min_amount')) if pd.notna(row.get('min_amount')) else None,
                 float(row.get('max_amount')) if pd.notna(row.get('max_amount')) else None,
-                str(row.get('currency', '')),
+                self._normalize_str(row.get('currency')),
                 bool(row.get('is_remote')) if pd.notna(row.get('is_remote')) else None,
-                str(row.get('job_level', '')),
-                str(row.get('job_function', '')),
-                str(row.get('listing_type', '')),
-                str(row.get('emails', '')),
-                str(row.get('description', '')).replace('nan', '').strip() if pd.notna(row.get('description')) else '',
-                str(row.get('company_industry', '')),
-                str(row.get('company_url', '')),
-                str(row.get('company_logo', '')),
-                str(row.get('company_url_direct', '')),
-                str(row.get('company_addresses', '')),
-                str(row.get('company_num_employees', '')),
-                str(row.get('company_revenue', '')),
-                str(row.get('company_description', '')),
-                str(row.get('skills', '')),
-                str(row.get('experience_range', '')),
+                self._normalize_str(row.get('job_level')),
+                self._normalize_str(row.get('job_function')),
+                self._normalize_str(row.get('listing_type')),
+                self._normalize_str(row.get('emails')),
+                self._normalize_str(row.get('description')),
+                self._normalize_str(row.get('company_industry')),
+                self._normalize_str(row.get('company_url')),
+                self._normalize_str(row.get('company_logo')),
+                self._normalize_str(row.get('company_url_direct')),
+                self._normalize_str(row.get('company_addresses')),
+                self._normalize_str(row.get('company_num_employees')),
+                self._normalize_str(row.get('company_revenue')),
+                self._normalize_str(row.get('company_description')),
+                self._normalize_str(row.get('skills')),
+                self._normalize_str(row.get('experience_range')),
                 float(row.get('company_rating')) if pd.notna(row.get('company_rating')) else None,
                 int(row.get('company_reviews_count')) if pd.notna(row.get('company_reviews_count')) else None,
                 int(row.get('vacancy_count')) if pd.notna(row.get('vacancy_count')) else None,
-                str(row.get('work_from_home_type', ''))
+                self._normalize_str(row.get('work_from_home_type')),
+                seniority_level,
+                role_family,
+                primary_language,
+                tech_tags,
+                self._normalize_str(city_norm),
+                self._normalize_str(country_norm),
             )
             jobs_data.append(job_tuple)
 
@@ -183,7 +363,9 @@ class JobDatabase:
             company_industry, company_url, company_logo, company_url_direct,
             company_addresses, company_num_employees, company_revenue, company_description,
             skills, experience_range, company_rating, company_reviews_count,
-            vacancy_count, work_from_home_type
+            vacancy_count, work_from_home_type,
+            seniority_level, role_family, primary_language, tech_tags,
+            city_normalized, country_normalized
         ) VALUES %s
         ON CONFLICT (id) DO NOTHING
         """
@@ -198,6 +380,23 @@ class JobDatabase:
         except Exception as e:
             logger.error(f"Error inserting jobs: {e}")
             raise
+
+    def cleanup_old_jobs(self, max_age_days):
+        delete_query = """
+        DELETE FROM jobs
+        WHERE
+            (date_posted IS NOT NULL AND date_posted < (CURRENT_DATE - %s))
+            OR (date_posted IS NULL AND created_at < NOW() - (%s * INTERVAL '1 day'))
+        """
+        try:
+            with self.get_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute(delete_query, (max_age_days, max_age_days))
+                    deleted = cur.rowcount
+                    conn.commit()
+            logger.info(f"Deleted {deleted} jobs older than {max_age_days} days")
+        except Exception as e:
+            logger.error(f"Error cleaning up old jobs: {e}")
 
 def scrape_and_save(config, db):
     """Scrape jobs for a single configuration and save to database"""
@@ -250,6 +449,15 @@ def main(config_group="all"):
 
     # Initialize database
     db = JobDatabase(db_url)
+
+    max_age_days_str = os.getenv('MAX_JOB_AGE_DAYS', '14')
+    try:
+        max_age_days = int(max_age_days_str)
+    except ValueError:
+        logger.error(f"Invalid MAX_JOB_AGE_DAYS value: {max_age_days_str}. Using default 14.")
+        max_age_days = 14
+
+    db.cleanup_old_jobs(max_age_days)
 
     # Get the appropriate config group
     if config_group not in CONFIG_GROUPS:
