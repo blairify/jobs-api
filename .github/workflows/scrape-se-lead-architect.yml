@@ -2,8 +2,6 @@
 name: SE Lead & Architect (Limited)
 
 on:
-  schedule:
-    - cron: '0 2 */2 * *'  # Runs at 2 AM UTC every 2 days
   workflow_dispatch:
 
 jobs:

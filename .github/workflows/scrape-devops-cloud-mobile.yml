@@ -39,12 +39,6 @@ jobs:
         run: |
           python main.py devops
 
-      - name: Run scraper for Cloud
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: |
-          python main.py cloud
-
       - name: Run scraper for Mobile
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}

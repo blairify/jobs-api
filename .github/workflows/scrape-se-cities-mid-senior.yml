@@ -2,8 +2,6 @@
 name: SE Cities - Mid & Senior Levels
 
 on:
-  schedule:
-    - cron: '30 2 */2 * *'  # Runs at 2:30 AM UTC every 2 days
   workflow_dispatch:
 
 jobs:

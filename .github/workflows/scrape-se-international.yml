@@ -2,15 +2,6 @@
 name: Scrape SE International
 
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'main.py'
-      - 'jobspy/**'
-      - 'requirements.txt'
-      - '.github/workflows/scrape-se-international.yml'
-  schedule:
-    - cron: '0 5 */2 * *'  # Runs at 5 AM UTC every 2 days
   workflow_dispatch:
 
 jobs:

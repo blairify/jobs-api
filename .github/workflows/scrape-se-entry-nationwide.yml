@@ -2,8 +2,6 @@
 name: SE Entry - Nationwide Only
 
 on:
-  schedule:
-    - cron: '30 0 */2 * *'  # Runs at 12:30 AM UTC every 2 days
   workflow_dispatch:
 
 jobs:

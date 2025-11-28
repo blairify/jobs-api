@@ -28,23 +28,13 @@ jobs:
           script: |
             const ref = core.getInput('ref') || 'main';
             const includeWeb = core.getInput('include_web_dev_all') === 'true';
-            // Workflow filenames to dispatch
+            // Workflow filenames to dispatch (only desired positions)
             const workflows = [
-              'scrape-se-general.yml',
-              'scrape-se-mid-senior.yml',
-              'scrape-se-lead-architect.yml',
-              'scrape-se-entry-nationwide.yml',
-              'scrape-se-entry-cities.yml',
-              'scrape-se-cities-mid-senior.yml',
-              'scrape-se-cities-lead.yml',
-              'scrape-se-international.yml',
-              'scrape-se-eu-capitals.yml',
               'scrape-devops-cloud-mobile.yml',
               'scrape-qa-security-database.yml',
               'scrape-product-design-systems.yml',
               'scrape-data-engineering-analytics.yml',
               'scrape-data-science-ml.yml',
-              'scrape-emerging-remote-internship.yml'
             ];
             if (includeWeb) workflows.push('scrape-web-dev-all.yml');
 

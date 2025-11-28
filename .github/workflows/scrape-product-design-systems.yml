@@ -39,18 +39,6 @@ jobs:
         run: |
           python main.py product_project
 
-      - name: Run scraper for Design
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: |
-          python main.py design
-
-      - name: Run scraper for Systems & Network
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: |
-          python main.py systems_network
-
       - name: Upload logs on failure
         if: failure()
         uses: actions/upload-artifact@v4

@@ -33,23 +33,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run scraper for QA & Testing
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: |
-          python main.py qa_testing
-
       - name: Run scraper for Security
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           python main.py security
-
-      - name: Run scraper for Database
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: |
-          python main.py database
 
       - name: Upload logs on failure
         if: failure()

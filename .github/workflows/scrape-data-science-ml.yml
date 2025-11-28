@@ -39,12 +39,6 @@ jobs:
         run: |
           python main.py data_science
 
-      - name: Run scraper for ML & AI
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: |
-          python main.py ml_ai
-
       - name: Upload logs on failure
         if: failure()
         uses: actions/upload-artifact@v4

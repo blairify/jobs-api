@@ -2,8 +2,6 @@
 name: Scrape SE EU Capitals
 
 on:
-  schedule:
-    - cron: '30 5 */2 * *'  # Runs at 5:30 AM UTC every 2 days
   workflow_dispatch:
 
 jobs:

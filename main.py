@@ -282,13 +282,15 @@ class JobDatabase:
                     date_posted = None
 
             title = row.get('title')
-            description = row.get('description')
+            raw_description = row.get('description')
             location = row.get('location')
 
-            seniority_level = self._infer_seniority_level(title, description)
-            role_family = self._infer_role_family(title, description)
-            primary_language, tech_tags = self._extract_tech_tags(title, description)
+            seniority_level = self._infer_seniority_level(title, raw_description)
+            role_family = self._infer_role_family(title, raw_description)
+            primary_language, tech_tags = self._extract_tech_tags(title, raw_description)
             city_norm, country_norm = self._normalize_location_parts(location)
+
+            description_value = self._normalize_str(raw_description)
 
             job_tuple = (
                 str(row.get('id', '')),
@@ -310,7 +312,7 @@ class JobDatabase:
                 self._normalize_str(row.get('job_function')),
                 self._normalize_str(row.get('listing_type')),
                 self._normalize_str(row.get('emails')),
-                self._normalize_str(row.get('description')),
+                description_value,
                 self._normalize_str(row.get('company_industry')),
                 self._normalize_str(row.get('company_url')),
                 self._normalize_str(row.get('company_logo')),

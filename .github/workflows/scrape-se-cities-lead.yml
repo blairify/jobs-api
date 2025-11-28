@@ -2,8 +2,6 @@
 name: SE Cities - Lead & Architect
 
 on:
-  schedule:
-    - cron: '0 3 */2 * *'  # Runs at 3 AM UTC every 2 days
   workflow_dispatch:
 
 jobs:

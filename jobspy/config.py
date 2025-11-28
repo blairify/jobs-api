@@ -4,7 +4,7 @@
 # ========================================
 
 # --- Base parameters ---
-DEFAULT_SITES = ["linkedin", "indeed"]  # Both sites for maximum data
+DEFAULT_SITES = ["linkedin", "indeed", "glassdoor", "google", "bayt", "naukri", "bdjobs"]
 DEFAULT_RESULTS = 20  # Optimized for speed vs data balance
 DEFAULT_HOURS = 72
 DEFAULT_DELAY = 0  # No delay - sites can handle it
@@ -280,6 +280,12 @@ FRONTEND_CONFIGS = [
     {"query_id": "web_developer", "search_term": "web developer", "location": "United States"},
 ]
 
+FRONTEND_CONFIGS.extend([
+    {"query_id": f"frontend_{city.split(',')[0].lower().replace(' ', '_')}",
+     "search_term": "frontend developer", "location": city}
+    for city in EU_CAPITALS
+])
+
 # ========================================
 # WORKFLOW 5: BACKEND DEVELOPMENT
 # ========================================
@@ -297,6 +303,12 @@ BACKEND_CONFIGS = [
     {"query_id": "scala_developer", "search_term": "scala developer", "location": "United States"},
 ]
 
+BACKEND_CONFIGS.extend([
+    {"query_id": f"backend_{city.split(',')[0].lower().replace(' ', '_')}",
+     "search_term": "backend developer", "location": city}
+    for city in EU_CAPITALS
+])
+
 # ========================================
 # WORKFLOW 6: FULLSTACK DEVELOPMENT
 # ========================================
@@ -313,6 +325,12 @@ FULLSTACK_CONFIGS.extend([
     {"query_id": f"fullstack_{city.split(',')[0].lower().replace(' ', '_')}", 
      "search_term": "full stack developer", "location": city}
     for city in US_MAJOR_CITIES[:6]  # Top 6 cities
+])
+
+FULLSTACK_CONFIGS.extend([
+    {"query_id": f"fullstack_{city.split(',')[0].lower().replace(' ', '_')}",
+     "search_term": "full stack developer", "location": city}
+    for city in EU_CAPITALS
 ])
 
 # ========================================
@@ -334,6 +352,12 @@ DATA_SCIENCE_CONFIGS.extend([
     for city in ["San Francisco, CA", "New York, NY", "Seattle, WA", "Boston, MA", "Austin, TX"]
 ])
 
+DATA_SCIENCE_CONFIGS.extend([
+    {"query_id": f"data_scientist_{city.split(',')[0].lower().replace(' ', '_')}",
+     "search_term": "data scientist", "location": city}
+    for city in EU_CAPITALS
+])
+
 # ========================================
 # WORKFLOW 8: DATA ENGINEERING
 # ========================================
@@ -346,6 +370,12 @@ DATA_ENGINEERING_CONFIGS = [
     {"query_id": "analytics_engineer", "search_term": "analytics engineer", "location": "United States"},
     {"query_id": "spark_developer", "search_term": "spark developer", "location": "United States"},
 ]
+
+DATA_ENGINEERING_CONFIGS.extend([
+    {"query_id": f"data_engineer_{city.split(',')[0].lower().replace(' ', '_')}",
+     "search_term": "data engineer", "location": city}
+    for city in EU_CAPITALS
+])
 
 # ========================================
 # WORKFLOW 9: DATA ANALYTICS
@@ -389,6 +419,12 @@ DEVOPS_CONFIGS = [
     {"query_id": "build_engineer", "search_term": "build engineer", "location": "United States"},
 ]
 
+DEVOPS_CONFIGS.extend([
+    {"query_id": f"devops_{city.split(',')[0].lower().replace(' ', '_')}",
+     "search_term": "devops engineer", "location": city}
+    for city in EU_CAPITALS
+])
+
 # ========================================
 # WORKFLOW 12: CLOUD ENGINEERING
 # ========================================
@@ -415,6 +451,12 @@ MOBILE_CONFIGS = [
     {"query_id": "swift_developer", "search_term": "swift developer", "location": "United States"},
     {"query_id": "kotlin_developer", "search_term": "kotlin developer", "location": "United States"},
 ]
+
+MOBILE_CONFIGS.extend([
+    {"query_id": f"mobile_{city.split(',')[0].lower().replace(' ', '_')}",
+     "search_term": "mobile developer", "location": city}
+    for city in EU_CAPITALS
+])
 
 # ========================================
 # WORKFLOW 14: QA & TESTING
@@ -445,6 +487,12 @@ SECURITY_CONFIGS = [
     {"query_id": "threat_intelligence_analyst", "search_term": "threat intelligence analyst", "location": "United States"},
 ]
 
+SECURITY_CONFIGS.extend([
+    {"query_id": f"security_engineer_{city.split(',')[0].lower().replace(' ', '_')}",
+     "search_term": "security engineer", "location": city}
+    for city in EU_CAPITALS
+])
+
 # ========================================
 # WORKFLOW 16: DATABASE ADMINISTRATION
 # ========================================
@@ -470,6 +518,12 @@ PRODUCT_PROJECT_CONFIGS = [
     {"query_id": "agile_coach", "search_term": "agile coach", "location": "United States"},
     {"query_id": "program_manager_tech", "search_term": "program manager technical", "location": "United States"},
 ]
+
+PRODUCT_PROJECT_CONFIGS.extend([
+    {"query_id": f"product_manager_{city.split(',')[0].lower().replace(' ', '_')}",
+     "search_term": "product manager", "location": city}
+    for city in EU_CAPITALS
+])
 
 # ========================================
 # WORKFLOW 18: UI/UX & DESIGN (TECH)
