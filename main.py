@@ -400,19 +400,76 @@ class JobDatabase:
         except Exception as e:
             logger.error(f"Error cleaning up old jobs: {e}")
 
+def infer_country_indeed(location):
+    """Infer JobSpy's country_indeed parameter from a human-readable location.
+
+    Examples:
+    - "San Francisco, CA" -> "USA"
+    - "New York, NY" -> "USA"
+    - "London, United Kingdom" -> "UK"
+    - "Berlin, Germany" -> "Germany"
+    - "Warsaw, Poland" -> "Poland"
+    Falls back to "USA" when unsure, so US workflows keep working.
+    """
+    if not location:
+        return "USA"
+
+    if isinstance(location, str):
+        parts = [p.strip() for p in location.split(',') if p.strip()]
+        if not parts:
+            return "usa"
+
+        last = parts[-1]
+        last_lower = last.lower()
+
+        # Explicit US markers
+        if last_lower in ("united states", "usa", "us"):
+            return "usa"
+
+        # Two-letter region like "CA", "NY" etc. -> assume US state
+        if len(last) == 2 and last.isupper():
+            return "usa"
+
+        # Map common UK spellings to the code JobSpy expects
+        if last_lower in ("united kingdom", "england", "scotland", "wales", "northern ireland"):
+            return "uk"
+
+        # Otherwise, use the country name lower-cased (e.g. "germany", "poland",
+        # "czech republic") to match JobSpy's expected country_indeed strings.
+        return last_lower
+
+    return "usa"
+
 def scrape_and_save(config, db):
     """Scrape jobs for a single configuration and save to database"""
     try:
         logger.info(f"Starting scrape for query: {config['query_id']}")
 
+        # Derive country_indeed per config so international locations
+        # (e.g. EU capitals) query the correct Indeed country endpoint.
+        location = config.get('location')
+        country_indeed = config.get('country_indeed')
+        if not country_indeed:
+            country_indeed = infer_country_indeed(location)
+
+        # Enable full LinkedIn descriptions where applicable so jobs
+        # aren't skipped just because the brief listing view omits them.
+        site_name = config['site_name']
+        has_linkedin = False
+        if isinstance(site_name, str):
+            has_linkedin = site_name.lower() == "linkedin"
+        else:
+            has_linkedin = any(s.lower() == "linkedin" for s in site_name)
+
         # Scrape jobs
         jobs = scrape_jobs(
-            site_name=config['site_name'],
+            site_name=site_name,
             search_term=config['search_term'],
-            location=config.get('location'),
+            location=location,
             results_wanted=config.get('results_wanted', 100),
             hours_old=config.get('hours_old', 72),
-            country_indeed='USA',
+            country_indeed=country_indeed,
+            linkedin_fetch_description=has_linkedin,
             verbose=1
         )
 
