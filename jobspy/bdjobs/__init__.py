@@ -46,10 +46,15 @@ class BDJobs(Scraper):
     band_delay = 3
 
     def __init__(
-        self, proxies: list[str] | str | None = None, ca_cert: str | None = None
+        self,
+        proxies: list[str] | str | None = None,
+        ca_cert: str | None = None,
+        user_agent: str | None = None,
     ):
-        """
-        Initializes BDJobsScraper with the BDJobs job search url
+        """Initializes BDJobs scraper.
+
+        The user_agent argument is accepted for compatibility with scrape_jobs,
+        but is not currently used.
         """
         super().__init__(Site.BDJOBS, proxies=proxies, ca_cert=ca_cert)
         self.session = create_session(
