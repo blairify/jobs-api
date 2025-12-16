@@ -40,7 +40,6 @@ class JobDatabase:
             date_posted DATE,
             job_type VARCHAR(50),
             salary_source VARCHAR(50),
-            interval VARCHAR(20),
             min_amount DECIMAL(15,2),
             max_amount DECIMAL(15,2),
             currency VARCHAR(10),
@@ -50,26 +49,13 @@ class JobDatabase:
             listing_type VARCHAR(50),
             emails TEXT,
             description TEXT,
-            company_industry TEXT,
-            company_url TEXT,
-            company_logo TEXT,
-            company_url_direct TEXT,
-            company_addresses TEXT,
-            company_num_employees VARCHAR(50),
-            company_revenue VARCHAR(50),
-            company_description TEXT,
             skills TEXT,
-            experience_range TEXT,
             seniority_level VARCHAR(20),
-            role_family VARCHAR(50),
             primary_language VARCHAR(50),
             tech_tags TEXT,
             city_normalized VARCHAR(100),
             country_normalized VARCHAR(100),
             position_tag VARCHAR(50),
-            company_profile VARCHAR(50),
-            title_en TEXT,
-            description_en TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
@@ -81,15 +67,11 @@ class JobDatabase:
 
         ALTER TABLE jobs
             ADD COLUMN IF NOT EXISTS seniority_level VARCHAR(20),
-            ADD COLUMN IF NOT EXISTS role_family VARCHAR(50),
             ADD COLUMN IF NOT EXISTS primary_language VARCHAR(50),
             ADD COLUMN IF NOT EXISTS tech_tags TEXT,
             ADD COLUMN IF NOT EXISTS city_normalized VARCHAR(100),
             ADD COLUMN IF NOT EXISTS country_normalized VARCHAR(100),
-            ADD COLUMN IF NOT EXISTS position_tag VARCHAR(50),
-            ADD COLUMN IF NOT EXISTS company_profile VARCHAR(50),
-            ADD COLUMN IF NOT EXISTS title_en TEXT,
-            ADD COLUMN IF NOT EXISTS description_en TEXT;
+            ADD COLUMN IF NOT EXISTS position_tag VARCHAR(50);
         """
         try:
             with self.get_connection() as conn:
@@ -602,37 +584,28 @@ class JobDatabase:
 
             title_value = self._normalize_str(title)
             description_value = self._normalize_str(raw_description)
-            title_en = self._translate_text(title_value)
-            description_en = self._translate_text(description_value)
 
-            source_title = title_en or title_value or title
-            source_description = description_en or description_value or raw_description
+            source_title = title_value or title
+            source_description = description_value or raw_description
 
             seniority_level = self._infer_seniority_level(
                 source_title, source_description
             )
             position_tag = self._infer_position_tag(source_title, source_description)
-            role_family = position_tag
+
+            if not seniority_level or not position_tag:
+                logger.info(
+                    "Skipping job %s - missing seniority_level or position_tag",
+                    row.get("id"),
+                )
+                continue
+
             primary_language, tech_tags = self._extract_tech_tags(
                 source_title, source_description
             )
             city_norm, country_norm = self._normalize_location_parts(location)
 
             company_name = self._normalize_str(row.get("company"))
-            company_industry = self._normalize_str(row.get("company_industry"))
-            company_num_employees = self._normalize_str(
-                row.get("company_num_employees")
-            )
-            company_description_value = self._normalize_str(
-                row.get("company_description")
-            )
-            company_profile = self._infer_company_profile(
-                company_name,
-                company_industry,
-                company_num_employees,
-                company_description_value,
-                description_value,
-            )
 
             job_tuple = (
                 str(row.get("id", "")),
@@ -645,7 +618,6 @@ class JobDatabase:
                 date_posted,
                 self._normalize_str(row.get("job_type")),
                 self._normalize_str(row.get("salary_source")),
-                self._normalize_str(row.get("interval")),
                 float(row.get("min_amount"))
                 if pd.notna(row.get("min_amount"))
                 else None,
@@ -659,26 +631,13 @@ class JobDatabase:
                 self._normalize_str(row.get("listing_type")),
                 self._normalize_str(row.get("emails")),
                 description_value,
-                self._normalize_str(row.get("company_industry")),
-                self._normalize_str(row.get("company_url")),
-                self._normalize_str(row.get("company_logo")),
-                self._normalize_str(row.get("company_url_direct")),
-                self._normalize_str(row.get("company_addresses")),
-                self._normalize_str(row.get("company_num_employees")),
-                self._normalize_str(row.get("company_revenue")),
-                self._normalize_str(row.get("company_description")),
                 self._normalize_str(row.get("skills")),
-                self._normalize_str(row.get("experience_range")),
                 seniority_level,
-                role_family,
                 primary_language,
                 tech_tags,
                 self._normalize_str(city_norm),
                 self._normalize_str(country_norm),
                 position_tag,
-                company_profile,
-                title_en,
-                description_en,
             )
             jobs_data.append(job_tuple)
 
@@ -686,7 +645,7 @@ class JobDatabase:
         new_jobs = []
         for job in jobs_data:
             job_id = job[0]
-            description = job[19]  # description is at index 19 in the tuple
+            description = job[18]  # description is at index 18 in the tuple
 
             # Skip if job already exists
             if self.job_exists(job_id):
@@ -709,13 +668,11 @@ class JobDatabase:
         insert_query = """
         INSERT INTO jobs (
             id, site, job_url, job_url_direct, title, company, location, date_posted,
-            job_type, salary_source, interval, min_amount, max_amount, currency,
+            job_type, salary_source, min_amount, max_amount, currency,
             is_remote, job_level, job_function, listing_type, emails, description,
-            company_industry, company_url, company_logo, company_url_direct,
-            company_addresses, company_num_employees, company_revenue, company_description,
-            skills, experience_range,
-            seniority_level, role_family, primary_language, tech_tags,
-            city_normalized, country_normalized, position_tag, company_profile, title_en, description_en
+            skills,
+            seniority_level, primary_language, tech_tags,
+            city_normalized, country_normalized, position_tag
         ) VALUES %s
         ON CONFLICT (id) DO NOTHING
         """
