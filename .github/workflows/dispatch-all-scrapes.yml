@@ -31,7 +31,7 @@ jobs:
           script: |
             const ref = core.getInput('ref') || 'main';
             const includeWeb = core.getInput('include_web_dev_all') === 'true';
-            // Workflow filenames to dispatch (only desired positions)
+            // Workflow filenames to dispatch
             const workflows = [
               'scrape-devops-cloud-mobile.yml',
               'scrape-qa-security-database.yml',

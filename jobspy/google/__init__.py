@@ -22,7 +22,10 @@ from jobspy.google.util import log, find_job_info_initial_page, find_job_info
 
 class Google(Scraper):
     def __init__(
-        self, proxies: list[str] | str | None = None, ca_cert: str | None = None, user_agent: str | None = None
+        self,
+        proxies: list[str] | str | None = None,
+        ca_cert: str | None = None,
+        user_agent: str | None = None,
     ):
         """
         Initializes Google Scraper with the Goodle jobs search url
@@ -178,7 +181,7 @@ class Google(Scraper):
             city, state, *country = [*map(lambda x: x.strip(), location.split(","))]
 
         days_ago_str = job_info[12]
-        if type(days_ago_str) == str:
+        if isinstance(days_ago_str, str):
             match = re.search(r"\d+", days_ago_str)
             days_ago = int(match.group()) if match else None
             date_posted = (datetime.now() - timedelta(days=days_ago)).date()

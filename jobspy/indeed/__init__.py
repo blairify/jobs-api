@@ -28,7 +28,10 @@ log = create_logger("Indeed")
 
 class Indeed(Scraper):
     def __init__(
-        self, proxies: list[str] | str | None = None, ca_cert: str | None = None, user_agent: str | None = None
+        self,
+        proxies: list[str] | str | None = None,
+        ca_cert: str | None = None,
+        user_agent: str | None = None,
     ):
         """
         Initializes IndeedScraper with the Indeed API url
@@ -148,9 +151,7 @@ class Indeed(Scraper):
                   start: "{start}h"
                 }}
             }}
-            """.format(
-                start=self.scraper_input.hours_old
-            )
+            """.format(start=self.scraper_input.hours_old)
         elif self.scraper_input.easy_apply:
             filters_str = """
             filters: {
@@ -198,7 +199,7 @@ class Indeed(Scraper):
         :param job: dict to parse
         :return: JobPost if it's a new job
         """
-        job_url = f'{self.base_url}/viewjob?jk={job["key"]}'
+        job_url = f"{self.base_url}/viewjob?jk={job['key']}"
         if job_url in self.seen_urls:
             return
         self.seen_urls.add(job_url)
@@ -213,7 +214,7 @@ class Indeed(Scraper):
         employer_details = employer.get("employerDetails", {}) if employer else {}
         rel_url = job["employer"]["relativeCompanyPageUrl"] if job["employer"] else None
         return JobPost(
-            id=f'in-{job["key"]}',
+            id=f"in-{job['key']}",
             title=job["title"],
             description=description,
             company_name=job["employer"].get("name") if job.get("employer") else None,

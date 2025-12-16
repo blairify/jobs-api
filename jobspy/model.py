@@ -10,51 +10,13 @@ from pydantic import BaseModel
 class JobType(Enum):
     FULL_TIME = (
         "fulltime",
-        "períodointegral",
-        "estágio/trainee",
-        "cunormăîntreagă",
-        "tiempocompleto",
-        "vollzeit",
-        "voltijds",
-        "tempointegral",
-        "全职",
-        "plnýúvazek",
-        "fuldtid",
-        "دوامكامل",
-        "kokopäivätyö",
-        "tempsplein",
-        "vollzeit",
-        "πλήρηςαπασχόληση",
-        "teljesmunkaidő",
-        "tempopieno",
-        "tempsplein",
-        "heltid",
-        "jornadacompleta",
-        "pełnyetat",
-        "정규직",
         "100%",
-        "全職",
-        "งานประจำ",
-        "tamzamanlı",
-        "повназайнятість",
-        "toànthờigian",
     )
-    PART_TIME = ("parttime", "teilzeit", "částečnýúvazek", "deltid")
+    PART_TIME = ("parttime", "part-time", "part time")
     CONTRACT = ("contract", "contractor")
     TEMPORARY = ("temporary",)
-    INTERNSHIP = (
-        "internship",
-        "prácticas",
-        "ojt(onthejobtraining)",
-        "praktikum",
-        "praktik",
-    )
-
-    PER_DIEM = ("perdiem",)
-    NIGHTS = ("nights",)
-    OTHER = ("other",)
+    INTERNSHIP = ("internship",)
     SUMMER = ("summer",)
-    VOLUNTEER = ("volunteer",)
 
 
 class Country(Enum):
@@ -64,83 +26,22 @@ class Country(Enum):
     The third item in the tuple is the subdomain (and tld if there's a ':' separator) for Glassdoor
     """
 
-    ARGENTINA = ("argentina", "ar", "com.ar")
-    AUSTRALIA = ("australia", "au", "com.au")
-    AUSTRIA = ("austria", "at", "at")
-    BAHRAIN = ("bahrain", "bh")
-    BANGLADESH = ("bangladesh", "bd")  # Added Bangladesh
-    BELGIUM = ("belgium", "be", "fr:be")
-    BULGARIA = ("bulgaria", "bg")
-    BRAZIL = ("brazil", "br", "com.br")
     CANADA = ("canada", "ca", "ca")
-    CHILE = ("chile", "cl")
-    CHINA = ("china", "cn")
-    COLOMBIA = ("colombia", "co")
-    COSTARICA = ("costa rica", "cr")
-    CROATIA = ("croatia", "hr")
-    CYPRUS = ("cyprus", "cy")
-    CZECHREPUBLIC = ("czech republic,czechia", "cz")
-    DENMARK = ("denmark", "dk")
-    ECUADOR = ("ecuador", "ec")
-    EGYPT = ("egypt", "eg")
-    ESTONIA = ("estonia", "ee")
-    FINLAND = ("finland", "fi")
     FRANCE = ("france", "fr", "fr")
     GERMANY = ("germany", "de", "de")
     GREECE = ("greece", "gr")
     HONGKONG = ("hong kong", "hk", "com.hk")
     HUNGARY = ("hungary", "hu")
-    INDIA = ("india", "in", "co.in")
-    INDONESIA = ("indonesia", "id")
-    IRELAND = ("ireland", "ie", "ie")
-    ISRAEL = ("israel", "il")
-    ITALY = ("italy", "it", "it")
-    JAPAN = ("japan", "jp")
-    KUWAIT = ("kuwait", "kw")
-    LATVIA = ("latvia", "lv")
-    LITHUANIA = ("lithuania", "lt")
-    LUXEMBOURG = ("luxembourg", "lu")
-    MALAYSIA = ("malaysia", "malaysia:my", "com")
-    MALTA = ("malta", "malta:mt", "mt")
-    MEXICO = ("mexico", "mx", "com.mx")
-    MOROCCO = ("morocco", "ma")
     NETHERLANDS = ("netherlands", "nl", "nl")
-    NEWZEALAND = ("new zealand", "nz", "co.nz")
-    NIGERIA = ("nigeria", "ng")
-    NORWAY = ("norway", "no")
-    OMAN = ("oman", "om")
-    PAKISTAN = ("pakistan", "pk")
-    PANAMA = ("panama", "pa")
-    PERU = ("peru", "pe")
-    PHILIPPINES = ("philippines", "ph")
     POLAND = ("poland", "pl")
     PORTUGAL = ("portugal", "pt")
-    QATAR = ("qatar", "qa")
-    ROMANIA = ("romania", "ro")
-    SAUDIARABIA = ("saudi arabia", "sa")
-    SINGAPORE = ("singapore", "sg", "sg")
     SLOVAKIA = ("slovakia", "sk")
-    SLOVENIA = ("slovenia", "sl")
-    SOUTHAFRICA = ("south africa", "za")
-    SOUTHKOREA = ("south korea", "kr")
     SPAIN = ("spain", "es", "es")
     SWEDEN = ("sweden", "se")
     SWITZERLAND = ("switzerland", "ch", "de:ch")
-    TAIWAN = ("taiwan", "tw")
-    THAILAND = ("thailand", "th")
-    TURKEY = ("türkiye,turkey", "tr")
-    UKRAINE = ("ukraine", "ua")
-    UNITEDARABEMIRATES = ("united arab emirates", "ae")
     UK = ("uk,united kingdom", "uk:gb", "co.uk")
     USA = ("usa,us,united states", "www:us", "com")
-    URUGUAY = ("uruguay", "uy")
-    VENEZUELA = ("venezuela", "ve")
-    VIETNAM = ("vietnam", "vn", "com")
-
-    # internal for ziprecruiter
     US_CANADA = ("usa/ca", "www")
-
-    # internal for linkedin
     WORLDWIDE = ("worldwide", "www")
 
     @property
@@ -236,6 +137,7 @@ class DescriptionFormat(Enum):
     HTML = "html"
     PLAIN = "plain"
 
+
 class JobPost(BaseModel):
     id: str | None = None
     title: str
@@ -273,12 +175,9 @@ class JobPost(BaseModel):
     job_function: str | None = None
 
     # Naukri specific
-    skills: list[str] | None = None  #from tagsAndSkills
-    experience_range: str | None = None  #from experienceText
-    company_rating: float | None = None  #from ambitionBoxData.AggregateRating
-    company_reviews_count: int | None = None  #from ambitionBoxData.ReviewsCount
-    vacancy_count: int | None = None  #from vacancy
-    work_from_home_type: str | None = None  #from clusters.wfhType (e.g., "Hybrid", "Remote")
+    skills: list[str] | None = None  # from tagsAndSkills
+    experience_range: str | None = None  # from experienceText
+
 
 class JobResponse(BaseModel):
     jobs: list[JobPost] = []
@@ -324,7 +223,11 @@ class ScraperInput(BaseModel):
 
 class Scraper(ABC):
     def __init__(
-        self, site: Site, proxies: list[str] | None = None, ca_cert: str | None = None, user_agent: str | None = None
+        self,
+        site: Site,
+        proxies: list[str] | None = None,
+        ca_cert: str | None = None,
+        user_agent: str | None = None,
     ):
         self.site = site
         self.proxies = proxies

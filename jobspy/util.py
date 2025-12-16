@@ -157,13 +157,15 @@ def markdown_converter(description_html: str):
     markdown = md(description_html)
     return markdown.strip()
 
-def plain_converter(decription_html:str):
+
+def plain_converter(decription_html: str):
     from bs4 import BeautifulSoup
+
     if decription_html is None:
         return None
     soup = BeautifulSoup(decription_html, "html.parser")
     text = soup.get_text(separator=" ")
-    text = re.sub(r'\s+',' ',text)
+    text = re.sub(r"\s+", " ", text)
     return text.strip()
 
 
@@ -356,8 +358,4 @@ desired_order = [
     # naukri-specific fields
     "skills",
     "experience_range",
-    "company_rating",
-    "company_reviews_count",
-    "vacancy_count",
-    "work_from_home_type",
 ]

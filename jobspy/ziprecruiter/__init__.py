@@ -38,7 +38,10 @@ class ZipRecruiter(Scraper):
     api_url = "https://api.ziprecruiter.com"
 
     def __init__(
-        self, proxies: list[str] | str | None = None, ca_cert: str | None = None, user_agent: str | None = None
+        self,
+        proxies: list[str] | str | None = None,
+        ca_cert: str | None = None,
+        user_agent: str | None = None,
     ):
         """
         Initializes ZipRecruiterScraper with the ZipRecruiter job search url
@@ -107,7 +110,7 @@ class ZipRecruiter(Scraper):
                 return jobs_list, ""
         except Exception as e:
             if "Proxy responded with" in str(e):
-                log.error(f"Indeed: Bad proxy")
+                log.error("Indeed: Bad proxy")
             else:
                 log.error(f"Indeed: {str(e)}")
             return jobs_list, ""
@@ -157,7 +160,7 @@ class ZipRecruiter(Scraper):
         description_full, job_url_direct = self._get_descr(job_url)
 
         return JobPost(
-            id=f'zr-{job["listing_key"]}',
+            id=f"zr-{job['listing_key']}",
             title=title,
             company_name=company,
             location=location,
@@ -203,7 +206,7 @@ class ZipRecruiter(Scraper):
                     m = re.search(r"job_url=(.+)", job_url_val)
                     if m:
                         job_url_direct = m.group(1)
-            except:
+            except Exception:
                 job_url_direct = None
 
             if self.scraper_input.description_format == DescriptionFormat.MARKDOWN:

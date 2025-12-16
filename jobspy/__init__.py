@@ -12,7 +12,7 @@ from jobspy.google import Google
 from jobspy.indeed import Indeed
 from jobspy.linkedin import LinkedIn
 from jobspy.naukri import Naukri
-from jobspy.model import JobType, Location, JobResponse, Country
+from jobspy.model import Location, JobResponse, Country
 from jobspy.model import SalarySource, ScraperInput, Site
 from jobspy.util import (
     set_logger_level,
@@ -26,6 +26,7 @@ from jobspy.util import (
 
 
 # Update the SCRAPER_MAPPING dictionary in the scrape_jobs function
+
 
 def scrape_jobs(
     site_name: str | list[str] | Site | list[Site] | None = None,
@@ -105,7 +106,7 @@ def scrape_jobs(
         scraped_data: JobResponse = scraper.scrape(scraper_input)
         cap_name = site.value.capitalize()
         site_name = "LinkedIn" if cap_name == "Linkedin" else cap_name
-        create_logger(site_name).info(f"finished scraping")
+        create_logger(site_name).info("finished scraping")
         return site.value, scraped_data
 
     site_to_jobs_dict = {}
@@ -128,7 +129,6 @@ def scrape_jobs(
     for site, job_response in site_to_jobs_dict.items():
         for job in job_response.jobs:
             job_data = job.dict()
-            job_url = job_data["job_url"]
             job_data["site"] = site
             job_data["company"] = job_data["company_name"]
             job_data["job_type"] = (
@@ -182,15 +182,11 @@ def scrape_jobs(
                 else None
             )
 
-            #naukri-specific fields
+            # naukri-specific fields
             job_data["skills"] = (
                 ", ".join(job_data["skills"]) if job_data["skills"] else None
             )
             job_data["experience_range"] = job_data.get("experience_range")
-            job_data["company_rating"] = job_data.get("company_rating")
-            job_data["company_reviews_count"] = job_data.get("company_reviews_count")
-            job_data["vacancy_count"] = job_data.get("vacancy_count")
-            job_data["work_from_home_type"] = job_data.get("work_from_home_type")
 
             job_df = pd.DataFrame([job_data])
             jobs_dfs.append(job_df)

@@ -1,5 +1,5 @@
 # .github/workflows/scrape-qa-security-database.yml
-name: Scrape QA, Security & Database
+name: Scrape Security
 
 on:
   push:
@@ -43,7 +43,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: scraper-logs-qa-security-database
+          name: scraper-logs-security
           path: |
             scraper.log
             *.csv

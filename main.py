@@ -1,23 +1,22 @@
 import os
 import logging
+import re
 import pandas as pd
-from datetime import datetime
 from jobspy import scrape_jobs
 from jobspy.config import CONFIG_GROUPS
 import psycopg2
 from psycopg2.extras import execute_values
 import time
+import requests
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('scraper.log'),
-        logging.StreamHandler()
-    ]
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.FileHandler("scraper.log"), logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
+
 
 class JobDatabase:
     def __init__(self, connection_string):
@@ -61,16 +60,16 @@ class JobDatabase:
             company_description TEXT,
             skills TEXT,
             experience_range TEXT,
-            company_rating DECIMAL(3,1),
-            company_reviews_count INTEGER,
-            vacancy_count INTEGER,
-            work_from_home_type TEXT,
             seniority_level VARCHAR(20),
             role_family VARCHAR(50),
             primary_language VARCHAR(50),
             tech_tags TEXT,
             city_normalized VARCHAR(100),
             country_normalized VARCHAR(100),
+            position_tag VARCHAR(50),
+            company_profile VARCHAR(50),
+            title_en TEXT,
+            description_en TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
@@ -86,7 +85,11 @@ class JobDatabase:
             ADD COLUMN IF NOT EXISTS primary_language VARCHAR(50),
             ADD COLUMN IF NOT EXISTS tech_tags TEXT,
             ADD COLUMN IF NOT EXISTS city_normalized VARCHAR(100),
-            ADD COLUMN IF NOT EXISTS country_normalized VARCHAR(100);
+            ADD COLUMN IF NOT EXISTS country_normalized VARCHAR(100),
+            ADD COLUMN IF NOT EXISTS position_tag VARCHAR(50),
+            ADD COLUMN IF NOT EXISTS company_profile VARCHAR(50),
+            ADD COLUMN IF NOT EXISTS title_en TEXT,
+            ADD COLUMN IF NOT EXISTS description_en TEXT;
         """
         try:
             with self.get_connection() as conn:
@@ -123,58 +126,370 @@ class JobDatabase:
             return cleaned
         return str(value)
 
+    def _translate_text(self, text, target_lang="EN"):
+        if not text:
+            return None
+        api_key = os.getenv("DEEPL_API_KEY")
+        if not api_key:
+            return None
+        enabled = os.getenv("TRANSLATION_ENABLED", "false").lower() in (
+            "1",
+            "true",
+            "yes",
+        )
+        if not enabled:
+            return None
+        api_url = os.getenv("DEEPL_API_URL", "https://api-free.deepl.com/v2/translate")
+        try:
+            response = requests.post(
+                api_url,
+                data={"auth_key": api_key, "text": text, "target_lang": target_lang},
+                timeout=10,
+            )
+            if response.status_code != 200:
+                logger.error(
+                    f"Translation API error: {response.status_code} {response.text}"
+                )
+                return None
+            data = response.json()
+            translations = data.get("translations")
+            if not translations:
+                return None
+            translated_text = translations[0].get("text")
+            if not translated_text:
+                return None
+            return translated_text
+        except Exception as e:
+            logger.error(f"Error translating text: {e}")
+            return None
+
     def _infer_seniority_level(self, title, description):
         text = f"{title or ''} {description or ''}".lower()
+        text = re.sub(r"[^a-z0-9+#]+", " ", text)
 
-        if any(k in text for k in ["intern ", "internship", "trainee"]):
-            return "intern"
-        if any(k in text for k in ["junior", " jr ", " jr.", "entry level", "new grad", "graduate", "early career", "associate"]):
+        def _max_years_of_experience() -> int | None:
+            years = []
+            for m in re.finditer(r"\b(\d{1,2})\s*(?:\+)?\s*(?:years|yrs)\b", text):
+                years.append(int(m.group(1)))
+            for m in re.finditer(
+                r"\b(\d{1,2})\s*(?:-|–|to)\s*(\d{1,2})\s*(?:years|yrs)\b",
+                text,
+            ):
+                years.append(int(m.group(2)))
+            return max(years) if years else None
+
+        # Map to frontend enum values: entry, junior, mid, senior
+        entry_patterns = [
+            r"\b(intern|internship|apprentice|trainee)\b",
+            r"\b(new\s*grad|graduate|recent\s*graduate)\b",
+            r"\b(entry\s*level|entry\s*-\s*level)\b",
+        ]
+        junior_patterns = [
+            r"\b(junior|jr\b|jr\.)\b",
+            r"\b(associate)\b",
+            r"\b(engineer|developer)\s*(i|1)\b",
+            r"\b(level\s*(i|1))\b",
+            r"\b(l1)\b",
+        ]
+        senior_patterns = [
+            r"\b(senior|sr\b|sr\.)\b",
+            r"\b(staff|principal|lead|architect)\b",
+            r"\b(head\s+of)\b",
+            r"\b(director|vp|vice\s+president|chief)\b",
+            r"\b(engineering\s+manager|software\s+engineering\s+manager)\b",
+        ]
+        mid_patterns = [
+            r"\b(mid\s*level|mid\s*-\s*level|intermediate)\b",
+            r"\b(engineer|developer)\s*(ii|2|iii|3)\b",
+            r"\b(level\s*(ii|2|iii|3))\b",
+            r"\b(l2|l3)\b",
+        ]
+
+        if any(re.search(p, text) for p in entry_patterns):
             return "entry"
-        if any(k in text for k in ["lead ", "lead-", "principal", "staff", "head of", "architect"]):
-            return "lead"
-        if any(k in text for k in ["senior", " sr ", " sr."]):
+        if any(re.search(p, text) for p in junior_patterns):
+            return "junior"
+        if any(re.search(p, text) for p in senior_patterns):
             return "senior"
-        if any(k in text for k in ["mid level", "mid-level", "intermediate", " level ii", " level 2", " level iii", " level 3"]):
+        if any(re.search(p, text) for p in mid_patterns):
             return "mid"
-        if "software engineer" in text or "software developer" in text or "swe" in text:
-            return "mid"
-        return None
+
+        years = _max_years_of_experience()
+        if years is not None:
+            if years <= 0:
+                return "entry"
+            if years <= 2:
+                return "junior"
+            if years <= 5:
+                return "mid"
+            return "senior"
+
+        return "mid"
 
     def _infer_role_family(self, title, description):
         text = f"{title or ''} {description or ''}".lower()
+        text = re.sub(r"[^a-z0-9+#]+", " ", text)
 
-        if "data scientist" in text:
-            return "data_scientist"
-        if any(k in text for k in ["machine learning engineer", "ml engineer", "ai engineer", "deep learning"]):
-            return "ml_ai"
-        if any(k in text for k in ["data engineer", "etl developer", "data pipeline engineer", "big data engineer"]):
-            return "data_engineer"
-        if any(k in text for k in ["data analyst", "business analyst", "bi developer", "analytics engineer"]):
-            return "data_analyst"
-        if any(k in text for k in ["devops", "site reliability engineer", "sre", "platform engineer", "infrastructure engineer"]):
-            return "devops"
-        if any(k in text for k in ["cloud engineer", "cloud architect", "aws engineer", "azure engineer", "gcp engineer"]):
-            return "cloud"
-        if any(k in text for k in ["security engineer", "cybersecurity", "info security", "penetration tester", "ethical hacker"]):
-            return "security"
-        if any(k in text for k in ["frontend", "front end", "ui developer", "react developer", "angular developer", "vue developer"]):
-            return "frontend"
-        if any(k in text for k in ["backend", "back end", "server-side"]):
-            return "backend"
-        if any(k in text for k in ["full stack", "fullstack", "mern", "mean"]):
-            return "fullstack"
-        if any(k in text for k in ["ios", "android", "mobile developer", "react native", "flutter", "swift developer", "kotlin developer"]):
-            return "mobile"
-        if any(k in text for k in ["qa engineer", "quality assurance", "test engineer", "sdet", "automation engineer"]):
-            return "qa"
-        if any(k in text for k in ["product manager", "product owner"]):
+        product_patterns = [
+            r"\b(product\s+manager|technical\s+product\s+manager|product\s+owner)\b",
+            r"\b(group\s+product\s+manager|gpm)\b",
+        ]
+        cybersecurity_patterns = [
+            r"\b(cyber\s*security|cybersecurity|info\s*sec|infosec|information\s+security)\b",
+            r"\b(security\s+engineer|security\s+analyst|soc\s+analyst)\b",
+            r"\b(penetration\s+tester|pentest|ethical\s+hacker|red\s+team|blue\s+team)\b",
+            r"\b(application\s+security|appsec|vulnerability\s+management|incident\s+response)\b",
+        ]
+        data_scientist_patterns = [
+            r"\b(data\s+scientist)\b",
+            r"\b(machine\s+learning|ml\b|ml\s+engineer|ai\s+engineer|deep\s+learning)\b",
+            r"\b(nlp|computer\s+vision|cv\b|llm|genai|generative\s+ai)\b",
+            r"\b(applied\s+scientist|research\s+scientist)\b",
+        ]
+        data_engineering_patterns = [
+            r"\b(data\s+engineer|analytics\s+engineer|etl\b|elt\b)\b",
+            r"\b(data\s+pipeline|data\s+warehouse|data\s+platform)\b",
+            r"\b(dbt|airflow|spark|kafka|snowflake|bigquery|redshift)\b",
+            r"\b(bi\s+developer|business\s+intelligence)\b",
+            r"\b(data\s+analyst|analytics)\b",
+        ]
+        devops_patterns = [
+            r"\b(devops|site\s+reliability|sre\b|platform\s+engineer)\b",
+            r"\b(infrastructure\s+engineer|infra\b|ci\s*/\s*cd|cicd)\b",
+            r"\b(kubernetes|k8s|docker|terraform|ansible)\b",
+            r"\b(cloud\s+engineer|cloud\s+architect|aws|azure|gcp)\b",
+        ]
+        mobile_patterns = [
+            r"\b(mobile\s+developer|mobile\s+engineer)\b",
+            r"\b(ios\b|android\b|react\s+native|flutter)\b",
+            r"\b(swift|kotlin)\b",
+        ]
+        fullstack_patterns = [
+            r"\b(full\s*stack|full\s*-\s*stack|fullstack|mern|mean)\b",
+        ]
+        frontend_patterns = [
+            r"\b(front\s*end|front\s*-\s*end|frontend)\b",
+            r"\b(ui\s+engineer|ui\s+developer|web\s+ui)\b",
+            r"\b(react|next\s*js|angular|vue)\b",
+        ]
+        backend_patterns = [
+            r"\b(back\s*end|back\s*-\s*end|backend)\b",
+            r"\b(server\s*side|server\s*-\s*side)\b",
+            r"\b(api\s+engineer|api\s+developer|microservices)\b",
+        ]
+
+        if any(re.search(p, text) for p in product_patterns):
             return "product"
-        if any(k in text for k in ["project manager", "program manager", "scrum master"]):
-            return "project"
-        if any(k in text for k in ["ux designer", "ui designer", "product designer", "interaction designer", "ux researcher"]):
-            return "design"
-        if any(k in text for k in ["software engineer", "software developer", "swe"]):
-            return "software_engineer"
+        if any(re.search(p, text) for p in cybersecurity_patterns):
+            return "security"
+        if any(re.search(p, text) for p in data_scientist_patterns):
+            return "data_scientist"
+        if any(re.search(p, text) for p in data_engineering_patterns):
+            return "data_engineer"
+        if any(re.search(p, text) for p in devops_patterns):
+            return "devops"
+        if any(re.search(p, text) for p in mobile_patterns):
+            return "mobile"
+        if any(re.search(p, text) for p in fullstack_patterns):
+            return "fullstack"
+        if any(re.search(p, text) for p in frontend_patterns):
+            return "frontend"
+        if any(re.search(p, text) for p in backend_patterns):
+            return "backend"
+
+        return None
+
+    def _infer_position_tag(self, title, description):
+        title_text = (title or "").lower()
+        desc_text = (description or "").lower()
+        title_text = re.sub(r"[^a-z0-9+#]+", " ", title_text)
+        desc_text = re.sub(r"[^a-z0-9+#]+", " ", desc_text)
+        combined_text = f"{title_text} {desc_text}".strip()
+
+        generic_title_markers = [
+            r"\bsoftware\s+engineer\b",
+            r"\bsoftware\s+developer\b",
+            r"\bengineer\b",
+            r"\bdeveloper\b",
+        ]
+        specific_role_markers = [
+            r"\bfront\s*end\b",
+            r"\bfrontend\b",
+            r"\bback\s*end\b",
+            r"\bbackend\b",
+            r"\bfull\s*stack\b",
+            r"\bfullstack\b",
+            r"\bdevops\b",
+            r"\bsre\b",
+            r"\bmobile\b",
+            r"\bios\b",
+            r"\bandroid\b",
+            r"\bdata\s+engineer\b",
+            r"\bdata\s+scientist\b",
+            r"\bproduct\s+manager\b",
+            r"\bcybersecurity\b",
+            r"\bsecurity\s+engineer\b",
+        ]
+
+        is_generic_title = any(re.search(p, title_text) for p in generic_title_markers)
+        has_specific_title = any(
+            re.search(p, title_text) for p in specific_role_markers
+        )
+        use_text = (
+            desc_text
+            if (is_generic_title and not has_specific_title)
+            else combined_text
+        )
+
+        patterns_by_tag = {
+            "cybersecurity": [
+                r"\b(cyber\s*security|cybersecurity|info\s*sec|infosec|information\s+security)\b",
+                r"\b(security\s+engineer|security\s+analyst|soc\s+analyst)\b",
+                r"\b(penetration\s+tester|pentest|ethical\s+hacker|red\s+team|blue\s+team)\b",
+                r"\b(application\s+security|appsec|devsecops|incident\s+response)\b",
+                r"\b(vulnerability\s+management|threat\s+model(ing)?)\b",
+            ],
+            "product-manager": [
+                r"\b(product\s+manager|product\s+owner)\b",
+                r"\b(technical\s+product\s+manager|tpm)\b",
+                r"\b(group\s+product\s+manager|gpm)\b",
+            ],
+            "data-scientist": [
+                r"\b(data\s+scientist)\b",
+                r"\b(machine\s+learning|ml\b|ml\s+engineer|ai\s+engineer|deep\s+learning)\b",
+                r"\b(nlp|computer\s+vision|cv\b|llm|genai|generative\s+ai)\b",
+                r"\b(applied\s+scientist|research\s+scientist)\b",
+            ],
+            "data": [
+                r"\b(data\s+engineer|analytics\s+engineer|etl\b|elt\b)\b",
+                r"\b(data\s+pipeline|data\s+warehouse|data\s+platform)\b",
+                r"\b(dbt|airflow|spark|kafka|snowflake|bigquery|redshift)\b",
+                r"\b(bi\s+developer|business\s+intelligence|data\s+analyst|analytics)\b",
+            ],
+            "devops": [
+                r"\b(devops|site\s+reliability|sre\b|platform\s+engineer)\b",
+                r"\b(infrastructure\s+engineer|infra\b|ci\s*/\s*cd|cicd)\b",
+                r"\b(kubernetes|k8s|docker|terraform|ansible)\b",
+                r"\b(cloud\s+engineer|cloud\s+architect|aws|azure|gcp)\b",
+            ],
+            "mobile": [
+                r"\b(mobile\s+developer|mobile\s+engineer)\b",
+                r"\b(ios\b|android\b|react\s+native|flutter)\b",
+                r"\b(swift|kotlin)\b",
+            ],
+            "fullstack": [
+                r"\b(full\s*stack|full\s*-\s*stack|fullstack|mern|mean)\b",
+            ],
+            "frontend": [
+                r"\b(front\s*end|front\s*-\s*end|frontend)\b",
+                r"\b(ui\s+engineer|ui\s+developer|web\s+ui)\b",
+                r"\b(react|next\s*js|angular|vue)\b",
+            ],
+            "backend": [
+                r"\b(back\s*end|back\s*-\s*end|backend)\b",
+                r"\b(server\s*side|server\s*-\s*side)\b",
+                r"\b(api\s+engineer|api\s+developer|microservices)\b",
+                r"\b(django|flask|fastapi|spring\s+boot|rails|dotnet|\.net)\b",
+            ],
+        }
+
+        matched = {
+            tag
+            for tag, patterns in patterns_by_tag.items()
+            if any(re.search(p, use_text) for p in patterns)
+        }
+
+        if "cybersecurity" in matched:
+            return "cybersecurity"
+        if "product-manager" in matched:
+            return "product-manager"
+        if "data-scientist" in matched:
+            return "data-scientist"
+
+        if "fullstack" in matched or ("frontend" in matched and "backend" in matched):
+            return "fullstack"
+
+        if "devops" in matched:
+            return "devops"
+        if "mobile" in matched:
+            return "mobile"
+        if "data" in matched:
+            return "data"
+        if "frontend" in matched:
+            return "frontend"
+        if "backend" in matched:
+            return "backend"
+
+        return None
+
+    def _infer_company_profile(
+        self,
+        company_name,
+        company_industry,
+        company_num_employees,
+        company_description,
+        job_description,
+    ):
+        text_parts = []
+        for value in (
+            company_name,
+            company_industry,
+            company_description,
+            job_description,
+        ):
+            if value:
+                text_parts.append(str(value))
+        text = " ".join(text_parts).lower()
+
+        # Detect FAANG-style companies
+        faang_names = [
+            "google",
+            "meta",
+            "facebook",
+            "amazon",
+            "apple",
+            "netflix",
+            "microsoft",
+        ]
+        if company_name:
+            name_lower = str(company_name).strip().lower()
+            if any(n in name_lower for n in faang_names):
+                return "faang"
+        if any(k in text for k in ["faang", "fang", "maang", "big tech"]):
+            return "faang"
+
+        # Detect startup-like companies
+        size = None
+        if company_num_employees:
+            try:
+                cleaned = "".join(
+                    ch for ch in str(company_num_employees) if ch.isdigit()
+                )
+                if cleaned:
+                    size = int(cleaned)
+            except Exception:
+                size = None
+        if size is not None and size < 100:
+            return "startup"
+        if any(
+            k in text
+            for k in [
+                "startup",
+                "start-up",
+                "seed stage",
+                "seed-stage",
+                "series a",
+                "series b",
+                "series c",
+                "scale-up",
+                "scale up",
+            ]
+        ):
+            return "startup"
+
+        # Default generic profile when we have some company context
+        if text:
+            return "generic"
         return None
 
     def _extract_tech_tags(self, title, description):
@@ -255,7 +570,7 @@ class JobDatabase:
         if not location:
             return None, None
         if isinstance(location, str):
-            parts = [p.strip() for p in location.split(',') if p.strip()]
+            parts = [p.strip() for p in location.split(",") if p.strip()]
             if not parts:
                 return None, None
             city = parts[0]
@@ -274,65 +589,96 @@ class JobDatabase:
         for _, row in jobs_df.iterrows():
             # Convert date_posted to proper format
             date_posted = None
-            raw_date = row.get('date_posted')
+            raw_date = row.get("date_posted")
             if pd.notna(raw_date):
                 try:
                     date_posted = pd.to_datetime(raw_date).date()
                 except Exception:
                     date_posted = None
 
-            title = row.get('title')
-            raw_description = row.get('description')
-            location = row.get('location')
+            title = row.get("title")
+            raw_description = row.get("description")
+            location = row.get("location")
 
-            seniority_level = self._infer_seniority_level(title, raw_description)
-            role_family = self._infer_role_family(title, raw_description)
-            primary_language, tech_tags = self._extract_tech_tags(title, raw_description)
+            title_value = self._normalize_str(title)
+            description_value = self._normalize_str(raw_description)
+            title_en = self._translate_text(title_value)
+            description_en = self._translate_text(description_value)
+
+            source_title = title_en or title_value or title
+            source_description = description_en or description_value or raw_description
+
+            seniority_level = self._infer_seniority_level(
+                source_title, source_description
+            )
+            position_tag = self._infer_position_tag(source_title, source_description)
+            role_family = position_tag
+            primary_language, tech_tags = self._extract_tech_tags(
+                source_title, source_description
+            )
             city_norm, country_norm = self._normalize_location_parts(location)
 
-            description_value = self._normalize_str(raw_description)
+            company_name = self._normalize_str(row.get("company"))
+            company_industry = self._normalize_str(row.get("company_industry"))
+            company_num_employees = self._normalize_str(
+                row.get("company_num_employees")
+            )
+            company_description_value = self._normalize_str(
+                row.get("company_description")
+            )
+            company_profile = self._infer_company_profile(
+                company_name,
+                company_industry,
+                company_num_employees,
+                company_description_value,
+                description_value,
+            )
 
             job_tuple = (
-                str(row.get('id', '')),
-                str(row.get('site', '')),
-                str(row.get('job_url', '')),
-                str(row.get('job_url_direct', '')),
-                str(row.get('title', '')),
-                self._normalize_str(row.get('company')),
-                self._normalize_str(row.get('location')),
+                str(row.get("id", "")),
+                str(row.get("site", "")),
+                str(row.get("job_url", "")),
+                str(row.get("job_url_direct", "")),
+                str(row.get("title", "")),
+                company_name,
+                self._normalize_str(row.get("location")),
                 date_posted,
-                self._normalize_str(row.get('job_type')),
-                self._normalize_str(row.get('salary_source')),
-                self._normalize_str(row.get('interval')),
-                float(row.get('min_amount')) if pd.notna(row.get('min_amount')) else None,
-                float(row.get('max_amount')) if pd.notna(row.get('max_amount')) else None,
-                self._normalize_str(row.get('currency')),
-                bool(row.get('is_remote')) if pd.notna(row.get('is_remote')) else None,
-                self._normalize_str(row.get('job_level')),
-                self._normalize_str(row.get('job_function')),
-                self._normalize_str(row.get('listing_type')),
-                self._normalize_str(row.get('emails')),
+                self._normalize_str(row.get("job_type")),
+                self._normalize_str(row.get("salary_source")),
+                self._normalize_str(row.get("interval")),
+                float(row.get("min_amount"))
+                if pd.notna(row.get("min_amount"))
+                else None,
+                float(row.get("max_amount"))
+                if pd.notna(row.get("max_amount"))
+                else None,
+                self._normalize_str(row.get("currency")),
+                bool(row.get("is_remote")) if pd.notna(row.get("is_remote")) else None,
+                self._normalize_str(row.get("job_level")),
+                self._normalize_str(row.get("job_function")),
+                self._normalize_str(row.get("listing_type")),
+                self._normalize_str(row.get("emails")),
                 description_value,
-                self._normalize_str(row.get('company_industry')),
-                self._normalize_str(row.get('company_url')),
-                self._normalize_str(row.get('company_logo')),
-                self._normalize_str(row.get('company_url_direct')),
-                self._normalize_str(row.get('company_addresses')),
-                self._normalize_str(row.get('company_num_employees')),
-                self._normalize_str(row.get('company_revenue')),
-                self._normalize_str(row.get('company_description')),
-                self._normalize_str(row.get('skills')),
-                self._normalize_str(row.get('experience_range')),
-                float(row.get('company_rating')) if pd.notna(row.get('company_rating')) else None,
-                int(row.get('company_reviews_count')) if pd.notna(row.get('company_reviews_count')) else None,
-                int(row.get('vacancy_count')) if pd.notna(row.get('vacancy_count')) else None,
-                self._normalize_str(row.get('work_from_home_type')),
+                self._normalize_str(row.get("company_industry")),
+                self._normalize_str(row.get("company_url")),
+                self._normalize_str(row.get("company_logo")),
+                self._normalize_str(row.get("company_url_direct")),
+                self._normalize_str(row.get("company_addresses")),
+                self._normalize_str(row.get("company_num_employees")),
+                self._normalize_str(row.get("company_revenue")),
+                self._normalize_str(row.get("company_description")),
+                self._normalize_str(row.get("skills")),
+                self._normalize_str(row.get("experience_range")),
                 seniority_level,
                 role_family,
                 primary_language,
                 tech_tags,
                 self._normalize_str(city_norm),
                 self._normalize_str(country_norm),
+                position_tag,
+                company_profile,
+                title_en,
+                description_en,
             )
             jobs_data.append(job_tuple)
 
@@ -341,16 +687,19 @@ class JobDatabase:
         for job in jobs_data:
             job_id = job[0]
             description = job[19]  # description is at index 19 in the tuple
-            
+
             # Skip if job already exists
             if self.job_exists(job_id):
                 continue
-                
+
             # Skip if description is empty, None, whitespace, or 'nan' (as string)
-            if not description or (isinstance(description, str) and (not description.strip() or description.strip().lower() == 'nan')):
+            if not description or (
+                isinstance(description, str)
+                and (not description.strip() or description.strip().lower() == "nan")
+            ):
                 logger.info(f"Skipping job {job_id} - no valid description provided")
                 continue
-                
+
             new_jobs.append(job)
 
         if not new_jobs:
@@ -364,10 +713,9 @@ class JobDatabase:
             is_remote, job_level, job_function, listing_type, emails, description,
             company_industry, company_url, company_logo, company_url_direct,
             company_addresses, company_num_employees, company_revenue, company_description,
-            skills, experience_range, company_rating, company_reviews_count,
-            vacancy_count, work_from_home_type,
+            skills, experience_range,
             seniority_level, role_family, primary_language, tech_tags,
-            city_normalized, country_normalized
+            city_normalized, country_normalized, position_tag, company_profile, title_en, description_en
         ) VALUES %s
         ON CONFLICT (id) DO NOTHING
         """
@@ -400,6 +748,7 @@ class JobDatabase:
         except Exception as e:
             logger.error(f"Error cleaning up old jobs: {e}")
 
+
 def infer_country_indeed(location):
     """Infer JobSpy's country_indeed parameter from a human-readable location.
 
@@ -415,7 +764,7 @@ def infer_country_indeed(location):
         return "USA"
 
     if isinstance(location, str):
-        parts = [p.strip() for p in location.split(',') if p.strip()]
+        parts = [p.strip() for p in location.split(",") if p.strip()]
         if not parts:
             return "usa"
 
@@ -431,7 +780,13 @@ def infer_country_indeed(location):
             return "usa"
 
         # Map common UK spellings to the code JobSpy expects
-        if last_lower in ("united kingdom", "england", "scotland", "wales", "northern ireland"):
+        if last_lower in (
+            "united kingdom",
+            "england",
+            "scotland",
+            "wales",
+            "northern ireland",
+        ):
             return "uk"
 
         # Otherwise, use the country name lower-cased (e.g. "germany", "poland",
@@ -440,6 +795,7 @@ def infer_country_indeed(location):
 
     return "usa"
 
+
 def scrape_and_save(config, db):
     """Scrape jobs for a single configuration and save to database"""
     try:
@@ -447,14 +803,14 @@ def scrape_and_save(config, db):
 
         # Derive country_indeed per config so international locations
         # (e.g. EU capitals) query the correct Indeed country endpoint.
-        location = config.get('location')
-        country_indeed = config.get('country_indeed')
+        location = config.get("location")
+        country_indeed = config.get("country_indeed")
         if not country_indeed:
             country_indeed = infer_country_indeed(location)
 
         # Enable full LinkedIn descriptions where applicable so jobs
         # aren't skipped just because the brief listing view omits them.
-        site_name = config['site_name']
+        site_name = config["site_name"]
         has_linkedin = False
         if isinstance(site_name, str):
             has_linkedin = site_name.lower() == "linkedin"
@@ -464,13 +820,13 @@ def scrape_and_save(config, db):
         # Scrape jobs
         jobs = scrape_jobs(
             site_name=site_name,
-            search_term=config['search_term'],
+            search_term=config["search_term"],
             location=location,
-            results_wanted=config.get('results_wanted', 100),
-            hours_old=config.get('hours_old', 72),
+            results_wanted=config.get("results_wanted", 100),
+            hours_old=config.get("hours_old", 72),
             country_indeed=country_indeed,
             linkedin_fetch_description=has_linkedin,
-            verbose=1
+            verbose=1,
         )
 
         logger.info(f"Found {len(jobs)} jobs for {config['query_id']}")
@@ -483,7 +839,7 @@ def scrape_and_save(config, db):
             logger.info(f"No jobs found for {config['query_id']}")
 
         # Add delay between scrapes to be respectful
-        delay = config.get('delay', 2)
+        delay = config.get("delay", 2)
         if delay > 0:
             logger.info(f"Sleeping for {delay} seconds...")
             time.sleep(delay)
@@ -491,6 +847,7 @@ def scrape_and_save(config, db):
     except Exception as e:
         logger.error(f"Error scraping {config['query_id']}: {e}")
         # Continue with other configs even if one fails
+
 
 def main(config_group="all"):
     """Main function to run scraping configurations
@@ -501,7 +858,7 @@ def main(config_group="all"):
     logger.info(f"Starting job scraping workflow for group: {config_group}")
 
     # Get database connection string
-    db_url = os.getenv('DATABASE_URL')
+    db_url = os.getenv("DATABASE_URL")
     if not db_url:
         logger.error("DATABASE_URL environment variable not set")
         return
@@ -509,32 +866,37 @@ def main(config_group="all"):
     # Initialize database
     db = JobDatabase(db_url)
 
-    max_age_days_str = os.getenv('MAX_JOB_AGE_DAYS', '14')
+    max_age_days_str = os.getenv("MAX_JOB_AGE_DAYS", "7")
     try:
         max_age_days = int(max_age_days_str)
     except ValueError:
-        logger.error(f"Invalid MAX_JOB_AGE_DAYS value: {max_age_days_str}. Using default 14.")
-        max_age_days = 14
+        logger.error(
+            f"Invalid MAX_JOB_AGE_DAYS value: {max_age_days_str}. Using default 7."
+        )
+        max_age_days = 7
 
     db.cleanup_old_jobs(max_age_days)
 
     # Get the appropriate config group
     if config_group not in CONFIG_GROUPS:
-        logger.error(f"Unknown config group: {config_group}. Available: {list(CONFIG_GROUPS.keys())}")
+        logger.error(
+            f"Unknown config group: {config_group}. Available: {list(CONFIG_GROUPS.keys())}"
+        )
         return
 
     configs = CONFIG_GROUPS[config_group]
     logger.info(f"Running {len(configs)} configurations for group '{config_group}'")
 
     # Run scraping configurations
-    total_jobs = 0
     for config in configs:
         scrape_and_save(config, db)
         # Could track total jobs here if needed
 
     logger.info(f"Job scraping workflow completed for group: {config_group}")
 
+
 if __name__ == "__main__":
     import sys
+
     config_group = sys.argv[1] if len(sys.argv) > 1 else "all"
     main(config_group)

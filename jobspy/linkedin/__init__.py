@@ -18,7 +18,7 @@ from jobspy.linkedin.util import (
     job_type_code,
     parse_job_type,
     parse_job_level,
-    parse_company_industry
+    parse_company_industry,
 )
 from jobspy.model import (
     JobPost,
@@ -51,7 +51,10 @@ class LinkedIn(Scraper):
     jobs_per_page = 25
 
     def __init__(
-        self, proxies: list[str] | str | None = None, ca_cert: str | None = None, user_agent: str | None = None
+        self,
+        proxies: list[str] | str | None = None,
+        ca_cert: str | None = None,
+        user_agent: str | None = None,
     ):
         """
         Initializes LinkedInScraper with the LinkedIn job search url
@@ -84,9 +87,10 @@ class LinkedIn(Scraper):
         seconds_old = (
             scraper_input.hours_old * 3600 if scraper_input.hours_old else None
         )
-        continue_search = (
-            lambda: len(job_list) < scraper_input.results_wanted and start < 1000
-        )
+
+        def continue_search() -> bool:
+            return len(job_list) < scraper_input.results_wanted and start < 1000
+
         while continue_search():
             request_count += 1
             log.info(
@@ -123,9 +127,7 @@ class LinkedIn(Scraper):
                 )
                 if response.status_code not in range(200, 400):
                     if response.status_code == 429:
-                        err = (
-                            f"429 Response - Blocked by LinkedIn for too many requests"
-                        )
+                        err = "429 Response - Blocked by LinkedIn for too many requests"
                     else:
                         err = f"LinkedIn response status code {response.status_code}"
                         err += f" - {response.text}"
@@ -133,7 +135,7 @@ class LinkedIn(Scraper):
                     return JobResponse(jobs=job_list)
             except Exception as e:
                 if "Proxy responded with" in str(e):
-                    log.error(f"LinkedIn: Bad proxy")
+                    log.error("LinkedIn: Bad proxy")
                 else:
                     log.error(f"LinkedIn: {str(e)}")
                 return JobResponse(jobs=job_list)
@@ -214,7 +216,7 @@ class LinkedIn(Scraper):
             datetime_str = datetime_tag["datetime"]
             try:
                 date_posted = datetime.strptime(datetime_str, "%Y-%m-%d")
-            except:
+            except Exception:
                 date_posted = None
         job_details = {}
         if full_descr:
@@ -253,7 +255,7 @@ class LinkedIn(Scraper):
                 f"{self.base_url}/jobs/view/{job_id}", timeout=5
             )
             response.raise_for_status()
-        except:
+        except Exception:
             return {}
         if "linkedin.com/signup" in response.url:
             return {}
