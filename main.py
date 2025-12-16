@@ -49,6 +49,12 @@ class JobDatabase:
             listing_type VARCHAR(50),
             emails TEXT,
             description TEXT,
+            company_industry TEXT,
+            company_url TEXT,
+            company_logo TEXT,
+            company_url_direct TEXT,
+            company_description TEXT,
+            company_profile VARCHAR(50),
             skills TEXT,
             seniority_level VARCHAR(20),
             primary_language VARCHAR(50),
@@ -67,11 +73,13 @@ class JobDatabase:
 
         ALTER TABLE jobs
             ADD COLUMN IF NOT EXISTS seniority_level VARCHAR(20),
+            ADD COLUMN IF NOT EXISTS role_family VARCHAR(50),
             ADD COLUMN IF NOT EXISTS primary_language VARCHAR(50),
             ADD COLUMN IF NOT EXISTS tech_tags TEXT,
             ADD COLUMN IF NOT EXISTS city_normalized VARCHAR(100),
             ADD COLUMN IF NOT EXISTS country_normalized VARCHAR(100),
-            ADD COLUMN IF NOT EXISTS position_tag VARCHAR(50);
+            ADD COLUMN IF NOT EXISTS position_tag VARCHAR(50),
+            ADD COLUMN IF NOT EXISTS company_profile VARCHAR(50);
         """
         try:
             with self.get_connection() as conn:
@@ -606,6 +614,17 @@ class JobDatabase:
             city_norm, country_norm = self._normalize_location_parts(location)
 
             company_name = self._normalize_str(row.get("company"))
+            company_industry = self._normalize_str(row.get("company_industry"))
+
+            company_description_value = self._normalize_str(
+                row.get("company_description")
+            )
+            company_profile = self._infer_company_profile(
+                company_name,
+                company_industry,
+                company_description_value,
+                description_value,
+            )
 
             job_tuple = (
                 str(row.get("id", "")),
@@ -631,6 +650,12 @@ class JobDatabase:
                 self._normalize_str(row.get("listing_type")),
                 self._normalize_str(row.get("emails")),
                 description_value,
+                self._normalize_str(row.get("company_industry")),
+                self._normalize_str(row.get("company_url")),
+                self._normalize_str(row.get("company_logo")),
+                self._normalize_str(row.get("company_url_direct")),
+                self._normalize_str(row.get("company_addresses")),
+                self._normalize_str(row.get("company_description")),
                 self._normalize_str(row.get("skills")),
                 seniority_level,
                 primary_language,
@@ -638,6 +663,7 @@ class JobDatabase:
                 self._normalize_str(city_norm),
                 self._normalize_str(country_norm),
                 position_tag,
+                company_profile,
             )
             jobs_data.append(job_tuple)
 
@@ -645,7 +671,7 @@ class JobDatabase:
         new_jobs = []
         for job in jobs_data:
             job_id = job[0]
-            description = job[18]  # description is at index 18 in the tuple
+            description = job[19]  # description is at index 19 in the tuple
 
             # Skip if job already exists
             if self.job_exists(job_id):
@@ -670,9 +696,10 @@ class JobDatabase:
             id, site, job_url, job_url_direct, title, company, location, date_posted,
             job_type, salary_source, min_amount, max_amount, currency,
             is_remote, job_level, job_function, listing_type, emails, description,
-            skills,
-            seniority_level, primary_language, tech_tags,
-            city_normalized, country_normalized, position_tag
+            company_industry, company_url, company_logo, company_url_direct,
+            company_description,
+            skills, seniority_level, primary_language, tech_tags,
+            city_normalized, country_normalized, position_tag, company_profile
         ) VALUES %s
         ON CONFLICT (id) DO NOTHING
         """
