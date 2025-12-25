@@ -7,7 +7,7 @@
 # Use only the most stable, broadly applicable providers by default.
 # Glassdoor, Bayt, Naukri, and BDJobs can be re-enabled per-config if needed,
 # but they frequently return 400/403/406 or region-specific blocks.
-DEFAULT_SITES = ["linkedin", "indeed", "google"]
+DEFAULT_SITES = ["linkedin", "indeed"]
 DEFAULT_RESULTS = 120  # Optimized for speed vs data balance
 DEFAULT_HOURS = 168
 DEFAULT_DELAY = 0  # No delay - sites can handle it

@@ -615,6 +615,9 @@ class JobDatabase:
 
             company_name = self._normalize_str(row.get("company"))
             company_industry = self._normalize_str(row.get("company_industry"))
+            company_num_employees = self._normalize_str(
+                row.get("company_num_employees")
+            )
 
             company_description_value = self._normalize_str(
                 row.get("company_description")
@@ -622,6 +625,7 @@ class JobDatabase:
             company_profile = self._infer_company_profile(
                 company_name,
                 company_industry,
+                company_num_employees,
                 company_description_value,
                 description_value,
             )
@@ -654,7 +658,6 @@ class JobDatabase:
                 self._normalize_str(row.get("company_url")),
                 self._normalize_str(row.get("company_logo")),
                 self._normalize_str(row.get("company_url_direct")),
-                self._normalize_str(row.get("company_addresses")),
                 self._normalize_str(row.get("company_description")),
                 self._normalize_str(row.get("skills")),
                 seniority_level,
@@ -671,7 +674,7 @@ class JobDatabase:
         new_jobs = []
         for job in jobs_data:
             job_id = job[0]
-            description = job[19]  # description is at index 19 in the tuple
+            description = job[18]  # description is at index 18 in the tuple
 
             # Skip if job already exists
             if self.job_exists(job_id):
@@ -691,16 +694,50 @@ class JobDatabase:
             logger.info("No new jobs to insert")
             return 0
 
-        insert_query = """
-        INSERT INTO jobs (
-            id, site, job_url, job_url_direct, title, company, location, date_posted,
-            job_type, salary_source, min_amount, max_amount, currency,
-            is_remote, job_level, job_function, listing_type, emails, description,
-            company_industry, company_url, company_logo, company_url_direct,
-            company_description,
-            skills, seniority_level, primary_language, tech_tags,
-            city_normalized, country_normalized, position_tag, company_profile
-        ) VALUES %s
+        job_columns = [
+            "id",
+            "site",
+            "job_url",
+            "job_url_direct",
+            "title",
+            "company",
+            "location",
+            "date_posted",
+            "job_type",
+            "salary_source",
+            "min_amount",
+            "max_amount",
+            "currency",
+            "is_remote",
+            "job_level",
+            "job_function",
+            "listing_type",
+            "emails",
+            "description",
+            "company_industry",
+            "company_url",
+            "company_logo",
+            "company_url_direct",
+            "company_description",
+            "skills",
+            "seniority_level",
+            "primary_language",
+            "tech_tags",
+            "city_normalized",
+            "country_normalized",
+            "position_tag",
+            "company_profile",
+        ]
+        column_count = len(job_columns)
+        for job in new_jobs:
+            if len(job) != column_count:
+                raise ValueError(
+                    f"Job tuple length {len(job)} does not match column count {column_count}"
+                )
+
+        insert_query = f"""
+        INSERT INTO jobs ({", ".join(job_columns)})
+        VALUES %s
         ON CONFLICT (id) DO NOTHING
         """
 
@@ -845,7 +882,7 @@ def main(config_group="all"):
     db_url = os.getenv("DATABASE_URL")
     if not db_url:
         logger.error("DATABASE_URL environment variable not set")
-        return
+        raise SystemExit("Missing DATABASE_URL secret")
 
     # Initialize database
     db = JobDatabase(db_url)
@@ -863,10 +900,11 @@ def main(config_group="all"):
 
     # Get the appropriate config group
     if config_group not in CONFIG_GROUPS:
+        available = ", ".join(CONFIG_GROUPS.keys())
         logger.error(
-            f"Unknown config group: {config_group}. Available: {list(CONFIG_GROUPS.keys())}"
+            f"Unknown config group: {config_group}. Available: {available}"
         )
-        return
+        raise SystemExit(f"Unknown config group: {config_group}")
 
     configs = CONFIG_GROUPS[config_group]
     logger.info(f"Running {len(configs)} configurations for group '{config_group}'")
